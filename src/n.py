@@ -4,11 +4,11 @@ import v
 
 #expects a vector2
 def snoise2( p ):
-	return v.vector2(noise.snoise2(p.x,p.x), noise.snoise2(p.y - 19.1, p.x + 33.4))
+	return v.vector2(noise.snoise2(p.x,p.x-1.1), noise.snoise2(p.y - 19.1, p.x + 33.4))
 
 #expects a vector3
 def snoise3( p ):
-	return v.vector3(noise.snoise3(p.x,p.x,p.x), noise.snoise3(p.y - 19.1, p.z + 33.4, p.x + 47.2), noise.snoise3(p.z + 74.2, p.x - 124.5, p.y + 99.4));
+	return v.vector3(noise.snoise3(p.x,p.x-1.1,p.x-2.2), noise.snoise3(p.y - 19.1, p.z + 33.4, p.x + 47.2), noise.snoise3(p.z + 74.2, p.x - 124.5, p.y + 99.4));
 
 def curl2( p ):
 

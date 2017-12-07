@@ -2,7 +2,8 @@ from tkinter import *
 
 import sys
 import os
-sys.path.append(is.getcwd()+"\\src")
+import time
+sys.path.append(os.getcwd()+"\\src")
 
 import v
 import n
@@ -63,15 +64,32 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 #-------------------------------------------------------------
 #  automatic drawing
 #------------------------------------------------------------
-# n = snoise2(0.0,0.0);
-# startPos = [n[0],n[1]]
-# def draw():
-# 	np = snoise2(startPos[0],startPos[1])
-# 	startPos[0]
+#https://stackoverflow.com/questions/7370801/measure-time-elapsed-in-python
+last=time.time()
+tick=0.0
+elapse=0.0
 
-# #https://stackoverflow.com/questions/459083/how-do-you-run-your-own-code-alongside-tkinters-event-loop
+nn = n.snoise3(v.vector3(4.01,6.761,elapse*0.32));
+turtle = v.vector2(width/2.0,height/2.0)
 
-# tk.after(1000,draw)
+def draw():
+	global turtle, last, elapse, tick
+
+	tick=(time.time()-last)
+	elapse+=tick
+
+	np = n.snoise3( v.vector3(turtle.x+9.34,turtle.y,elapse) ) * 100.0 * tick
+	newpos = turtle + v.vector2(np.x,np.y)
+	print(np.x)
+	canvas.create_line(turtle.x,turtle.y,newpos.x,newpos.y,fill="#476042")
+	turtle=newpos
+	#print("we be drawing: "+str(turtle.x)+","+str(turtle.y)+" : "+str(newpos.x)+","+str(newpos.y))
+	last=time.time()
+	tk.after(100,draw)
+
+#https://stackoverflow.com/questions/459083/how-do-you-run-your-own-code-alongside-tkinters-event-loop
+
+tk.after(100,draw)
 
 mainloop()
 
