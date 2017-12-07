@@ -3,10 +3,14 @@ from tkinter import *
 import sys
 import os
 import time
-sys.path.append(os.getcwd()+"\\src")
 
+sys.path.append(os.getcwd()+"\\src")
 import v
 import n
+#import a
+
+sys.path.append(os.getcwd()+"\\mod")
+import a_01_helloWorld
 
 
 tk = Tk()
@@ -14,6 +18,7 @@ tk.title( "plot" )
 
 width = 800
 height = 400
+afterSpeed = 100
 
 canvas = Canvas(tk,width = width, height = height)
 canvas.pack(fill=BOTH, expand=1)
@@ -51,11 +56,6 @@ def mousePlot(event):
 		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
 		mouseStartPos = [ event.x, event.y ]
 
-	# python_green = "#476042"
-	# x1, y1 = ( event.x - 1 ), ( event.y - 1 )
-	# x2, y2 = ( event.x + 1 ), ( event.y + 1 )
-	# canvas.create_oval( x1, y1, x2, y2, fill = python_green )
-
 
 canvas.bind( "<B1-Motion>", mousePlot )
 canvas.bind( "<ButtonRelease-1>", mouseRelease )
@@ -69,7 +69,6 @@ last=time.time()
 tick=0.0
 elapse=0.0
 
-nn = n.snoise3(v.vector3(4.01,6.761,elapse*0.32));
 turtle = v.vector2(width/2.0,height/2.0)
 
 def draw():
@@ -80,16 +79,19 @@ def draw():
 
 	np = n.snoise3( v.vector3(turtle.x+9.34,turtle.y,elapse) ) * 100.0 * tick
 	newpos = turtle + v.vector2(np.x,np.y)
-	print(np.x)
+	#print(np.x)
 	canvas.create_line(turtle.x,turtle.y,newpos.x,newpos.y,fill="#476042")
 	turtle=newpos
 	#print("we be drawing: "+str(turtle.x)+","+str(turtle.y)+" : "+str(newpos.x)+","+str(newpos.y))
 	last=time.time()
-	tk.after(100,draw)
+
+	tk.after(afterSpeed,draw)
+
 
 #https://stackoverflow.com/questions/459083/how-do-you-run-your-own-code-alongside-tkinters-event-loop
-
-tk.after(100,draw)
+tk.after(afterSpeed,draw)
+artist = a_01_helloWorld.a_01_helloWorld(tk)
+#tk.after(afterSpeed,)
 
 mainloop()
 

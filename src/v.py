@@ -34,7 +34,7 @@ class vector2:
 
 	def length(self):
 		return math.sqrt( (self.x*self.x) + (self.y*self.y) )
-	
+
 	def normalize(self):
 		nlength = self.length()
 		if nlength == 0 : #if magnitude comes back as 0 avoid dividing by 0
@@ -44,12 +44,19 @@ class vector2:
 			self.x = self.x / nlength
 			self.y = self.y / nlength
 
-	def normalized(v):
+	def dot(self,v):
+		return ( self.x * v.x + self.y * v.y )
+
+	#-------STATIC
+	def normalize(v):
 		nlength = math.sqrt( (v.x*v.x) + (v.y*v.y) )
 		if nlength == 0 : #if magnitude comes back as 0 avoid dividing by 0
 			return vector2 (0.0,0.0)
 		else:
 			return vector2 (v.x / nlength, v.y / nlength)
+
+	def dot(v1,v2):
+		return ( v1.x * v2.x + v1.y * v2.y )
 
 #==================================================================
 
@@ -93,9 +100,22 @@ class vector3(vector2):
 			self.y = self.y / nlength
 			self.z = self.z / nlength
 
-	def normalized(v):
+	def dot(self,v):
+		return ( self.x * v.x + self.y * v.y + self.z * v.z )
+	
+	def cross(self,v):
+		return(	(self.y * v.z) - (self.z * v.y) , (self.z * v.x) - (self.x * v.z) , (self.x * v.y) - (self.y * v.x))
+
+	#------STATIC
+
+	def normalize(v):
 		nlength = math.sqrt( (v.x*v.x) + (v.y*v.y) + (v.z*v.z) );
 		if nlength == 0 : #if magnitude comes back as 0 avoid dividing by 0
 			return vector3 (0.0,0.0,0.0);
 		else:
 			return vector3 (v.x / nlength, v.y / nlength, v.z / nlength);
+	def dot(v1,v2):
+		return ( v1.x * v2.x + v1.y * v2.y + v1.z * v2.z )
+
+	def cross(v1,v2):
+		return(	(v1.y * v2.z) - (v1.z * v2.y) , (v1._z * v2.x) - (v1._x * v2.z) , (v1._x * v2.y) - (v1._y * v2.x) )
