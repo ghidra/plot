@@ -48,6 +48,9 @@ class vector2:
 		return ( self.x * v.x + self.y * v.y )
 
 	#-------STATIC
+	def length(v):
+		return math.sqrt( (v.x*v.x) + (v.y*v.y) )
+
 	def normalize(v):
 		nlength = math.sqrt( (v.x*v.x) + (v.y*v.y) )
 		if nlength == 0 : #if magnitude comes back as 0 avoid dividing by 0
@@ -107,13 +110,14 @@ class vector3(vector2):
 		return(	(self.y * v.z) - (self.z * v.y) , (self.z * v.x) - (self.x * v.z) , (self.x * v.y) - (self.y * v.x))
 
 	#------STATIC
-
+	def length(v):
+		return math.sqrt( (v.x*v.x) + (v.y*v.y) + (v.z*v.z) )
 	def normalize(v):
-		nlength = math.sqrt( (v.x*v.x) + (v.y*v.y) + (v.z*v.z) );
+		nlength = math.sqrt( (v.x*v.x) + (v.y*v.y) + (v.z*v.z) )
 		if nlength == 0 : #if magnitude comes back as 0 avoid dividing by 0
-			return vector3 (0.0,0.0,0.0);
+			return vector3 (0.0,0.0,0.0)
 		else:
-			return vector3 (v.x / nlength, v.y / nlength, v.z / nlength);
+			return vector3 (v.x / nlength, v.y / nlength, v.z / nlength)
 	def dot(v1,v2):
 		return ( v1.x * v2.x + v1.y * v2.y + v1.z * v2.z )
 
