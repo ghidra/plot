@@ -6,12 +6,18 @@ import serial #"python -m pip install pyserial"
 #import re
 import time
 
-sys.path.append(os.getcwd()+"\\src")
+import platform
+if(platform.system() == "Windows"):
+	sys.path.append(os.getcwd()+"\\src")
+	sys.path.append(os.getcwd()+"\\mod")
+else:
+	sys.path.append(os.getcwd()+"/src")
+	sys.path.append(os.getcwd()+"/mod")
+
 from v import *
 from s import s
 import n
 
-sys.path.append(os.getcwd()+"\\mod")
 import a_01_helloWorld
 
 #---------------------------------------------
