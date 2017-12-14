@@ -35,7 +35,7 @@ afterSpeed = 100
 buffer_size = 128
 baud = 9600
 serial_address = "/dev/ttyUSB0"
-doPlot = False # this is just here if we are testing without a plotter connected, we bypass all plotter code
+doPlot = True # this is just here if we are testing without a plotter connected, we bypass all plotter code
 
 #---------------------------------------------
 
