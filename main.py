@@ -2,7 +2,7 @@ from tkinter import *
 import threading
 import sys
 import os
-import serial #"python -m pip install pyserial"
+# import serial #"python -m pip install pyserial"
 #import re
 import time
 
@@ -16,7 +16,8 @@ else:
 
 from v import *
 from s import s
-import n
+#import n
+from g import g
 
 import a_01_helloWorld
 
@@ -29,19 +30,17 @@ height = 400
 #how often a new line is made in automatic draw
 afterSpeed = 100
 
-#---------------------------------------------
-
 #plotter connection
-buffer_size = 128
-baud = 9600
 serial_address = "/dev/ttyUSB0"
-doPlot = True # this is just here if we are testing without a plotter connected, we bypass all plotter code
 
 #---------------------------------------------
 
 #this is the array of segments.
 segmentBuffer = []
-maxSegmentBufferSize = 200
+artistSegmentBuffer = []
+
+#this will stop automatic drawing at a certain point if need be
+maxArtistSegmentBufferSize = 200
 
 #---------------------------------------------
 
@@ -79,6 +78,7 @@ def mousePlot(event):
 		mousePlotting = True
 	else:
 		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
+		segmentBuffer.append([vector2(mouseStartPos[0],mouseStartPos[1]),vector2(event.x,event.y)])
 		mouseStartPos = [ event.x, event.y ]
 
 
@@ -101,10 +101,10 @@ class drawThread(threading.Thread):
 
 def draw( artist ):
 
-	if len(segmentBuffer)<maxSegmentBufferSize:
+	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		segment = artist.update()
 		canvas.create_line(segment.p1.x,segment.p1.y,segment.p2.x,segment.p2.y,fill=segment.color)
-		segmentBuffer.append([segment.p1,segment.p2])
+		artistSegmentBuffer.append([segment.p1,segment.p2])
 
 	tk.after(afterSpeed,draw,artist)
 
@@ -116,37 +116,22 @@ _drawThread = drawThread(width, height)
 
 class gcodeThread(threading.Thread):
    
-	def __init__( self , serial_address, baud, buffer_size):
+	def __init__( self ):#, serial_address, baud, buffer_size):
 		threading.Thread.__init__(self)
-		if doPlot:
-			self.device = serial.Serial(serial_address,baud)
-		self.baud = baud
-		self.buffer_size = buffer_size
-
-		## Wake up grbl
-		if doPlot:
-			self.device.write("\r\n\r\n")
-		print("init gcode thread")
-		threading.Timer(2, self.flushOnWake).start()
-
-	def flushOnWake(self):
-		if doPlot:
-			self.device.flushInput()
-		self.start()
+		self.grbl = g(self,serial_address,False)
 
 	def run(self):
-		print("start gcode thread")
-		gcode()
+		#print("start gcode thread")
+		gcode( self.grbl )
 
 
-def gcode():
-	print("coding it up")
-	if doPlot:
-		while len(segmentBuffer)>0:
-			segment = segmentBuffer.pop(0)
-			#print(*myData)
+def gcode( grbl ):
+	print("gcoding it up")
+	while len(segmentBuffer)>0:
+		segment = segmentBuffer.pop(0)
+		print(*segmentBuffer)
 
-_gcodeThread = gcodeThread(serial_address, baud, buffer_size)
+_gcodeThread = gcodeThread()#serial_address, baud, buffer_size)
 #-------------------------------------------------------------
 
 mainloop()
