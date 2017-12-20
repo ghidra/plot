@@ -1,3 +1,6 @@
+#	segment
+#	2 vector points to define a line, p1 p2
+
 from v import *
 class s:
 	def __init__(self, p1, p2, color=None):

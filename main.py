@@ -50,6 +50,10 @@ tk.title( "plot" )
 canvas = Canvas(tk,width = width, height = height)
 canvas.pack(fill=BOTH, expand=1)
 
+#---------------------------------------------
+
+threads=[]
+
 #-------------------------------------------------------------
 #  on resize
 #------------------------------------------------------------
@@ -78,7 +82,8 @@ def mousePlot(event):
 		mousePlotting = True
 	else:
 		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
-		segmentBuffer.append([vector2(mouseStartPos[0],mouseStartPos[1]),vector2(event.x,event.y)])
+		segment = s( vector2(mouseStartPos[0],mouseStartPos[1]),vector2(event.x,event.y) )
+		segmentBuffer.append(segment)
 		mouseStartPos = [ event.x, event.y ]
 
 
@@ -104,34 +109,64 @@ def draw( artist ):
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		segment = artist.update()
 		canvas.create_line(segment.p1.x,segment.p1.y,segment.p2.x,segment.p2.y,fill=segment.color)
-		artistSegmentBuffer.append([segment.p1,segment.p2])
+		artistSegmentBuffer.append(segment)
 
 	tk.after(afterSpeed,draw,artist)
 
 _drawThread = drawThread(width, height)
+threads.append(_drawThread)
 
 #-------------------------------------------------------------
 #  plotter
 #------------------------------------------------------------
+
+grblPlotting = True #this makes it so we can turn off the while loop basically. otherwise it hangs the prompt
 
 class gcodeThread(threading.Thread):
    
 	def __init__( self ):#, serial_address, baud, buffer_size):
 		threading.Thread.__init__(self)
 		self.grbl = g(self,serial_address,False)
+		self._stop_event = threading.Event()
 
 	def run(self):
 		#print("start gcode thread")
 		gcode( self.grbl )
 
+	# def stop(self):
+	# 	self._stop_event.set()
+
+	# def stopped(self):
+	# 	return self._stop_event.is_set()
+
 
 def gcode( grbl ):
-	print("gcoding it up")
-	while len(segmentBuffer)>0:
-		segment = segmentBuffer.pop(0)
-		print(*segmentBuffer)
+	global grblPlotting
+	print("start streaming gcode in thread")
+	while grblPlotting:
+		if len(segmentBuffer)>0:
+			segment = segmentBuffer.pop(0)
+			grbl.line(segment)
+			#print(*segmentBuffer)
 
-_gcodeThread = gcodeThread()#serial_address, baud, buffer_size)
+_gcodeThread = gcodeThread()
+threads.append(_gcodeThread)
+
+#-------------------------------------------------------------
+#  on close
+#------------------------------------------------------------
+
+def close():
+	global grblPlotting, threads
+	grblPlotting = False
+	#_gcodeThread.stop()
+	for t in threads:
+		t.join()
+
+	tk.destroy()
+
+tk.protocol("WM_DELETE_WINDOW", close)
+
 #-------------------------------------------------------------
 
 mainloop()
