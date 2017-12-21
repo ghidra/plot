@@ -57,5 +57,5 @@ class g:
 			#this is absolute mode
 			self.stream( 'G1 X'+str(segment.p2.x)+' Y'+str(segment.p2.y)+' F'+str(feedrate) )
 		#this draws a line from a given segment
-		#print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.y)+","+str(segment.p2.y) )
+		print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.y)+","+str(segment.p2.y) )
 

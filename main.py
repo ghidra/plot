@@ -127,10 +127,9 @@ threads.append(_drawThread)
 grblPlotting = True #this makes it so we can turn off the while loop basically. otherwise it hangs the prompt
 
 class gcodeThread(threading.Thread):
-   	global serial_address
-	def __init__( self ):#, serial_address, baud, buffer_size):
+	def __init__( self, serial_address, connect ):
 		threading.Thread.__init__(self)
-		self.grbl = g(self,serial_address,args.connect)
+		self.grbl = g(self,serial_address,connect)
 		self._stop_event = threading.Event()
 
 	def run(self):
@@ -153,7 +152,7 @@ def gcode( grbl ):
 			grbl.line(segment,100)
 			#print(*segmentBuffer)
 
-_gcodeThread = gcodeThread()
+_gcodeThread = gcodeThread(serial_address,args.connect)
 threads.append(_gcodeThread)
 
 #-------------------------------------------------------------
