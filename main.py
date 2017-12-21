@@ -2,10 +2,8 @@ from tkinter import *
 import threading
 import sys
 import os
-# import serial #"python -m pip install pyserial"
-#import re
 import time
-
+import argparse
 import platform
 if(platform.system() == "Windows"):
 	sys.path.append(os.getcwd()+"\\src")
@@ -23,6 +21,12 @@ import a_01_helloWorld
 
 #---------------------------------------------
 
+# Define command line argument interface
+parser = argparse.ArgumentParser(description='')
+parser.add_argument('-c', '--connect', action='store_true', default=False, help='run without connecting to serial')
+args = parser.parse_args()
+
+#---------------------------------------------
 #canvas size
 width = 800
 height = 400
@@ -126,7 +130,7 @@ class gcodeThread(threading.Thread):
    
 	def __init__( self ):#, serial_address, baud, buffer_size):
 		threading.Thread.__init__(self)
-		self.grbl = g(self,serial_address,False)
+		self.grbl = g(self,serial_address,args.connect)
 		self._stop_event = threading.Event()
 
 	def run(self):
