@@ -1,0 +1,13 @@
+{
+
+"plotter_serial":"/dev/ttyUSB0",
+"plotter_width": 256,
+"plotter_height": 256,
+"plot_in_inches" : false,
+"plot_movement_incremental" : false,
+"plotter_feedrate": 100,
+"canvas_max_pixels": 800,
+"artist_delay" : 0.1,
+"artist_max_buffer_size" : 200
+
+}

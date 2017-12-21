@@ -17,6 +17,7 @@ class g:
 
 		self.measurement = 'G20' if inches else 'G21'
 		self.mode = 'G91' if incremental else 'G90'
+		self.incremental = incremental
 
 		if connected:
 			self.device = serial.Serial(serial_address,baud)
@@ -49,7 +50,7 @@ class g:
 		print(block)
 
 	def line(self,segment,feedrate):
-		if self.mode:
+		if self.incremental:
 			#this is the incremental mode... so we have to do some calulating here
 			direction = segment.p2-segment.p1
 			self.stream( 'G1 X'+str(direction.x)+' Y'+str(direction.y)+' F'+str(feedrate) )
@@ -57,5 +58,5 @@ class g:
 			#this is absolute mode
 			self.stream( 'G1 X'+str(segment.p2.x)+' Y'+str(segment.p2.y)+' F'+str(feedrate) )
 		#this draws a line from a given segment
-		print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.y)+","+str(segment.p2.y) )
+		#print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.x)+","+str(segment.p2.y) )
 

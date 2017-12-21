@@ -3,6 +3,7 @@ import threading
 import sys
 import os
 import time
+import json
 import argparse
 import platform
 if(platform.system() == "Windows"):
@@ -11,6 +12,8 @@ if(platform.system() == "Windows"):
 else:
 	sys.path.append(os.getcwd()+"/src")
 	sys.path.append(os.getcwd()+"/mod")
+
+import p
 
 from v import *
 from s import s
@@ -21,53 +24,57 @@ import a_01_helloWorld
 
 #---------------------------------------------
 
+tk = Tk()
+tk.title( "plot" )
+
+#---------------------------------------------
+
 # Define command line argument interface
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('-c', '--connect', action='store_true', default=False, help='run without connecting to serial')
+parser.add_argument('-c', '--connect', action='store_true', default=False, help='connect to serial')
 args = parser.parse_args()
 
 #---------------------------------------------
-#canvas size
-width = 800
-height = 400
 
-#how often a new line is made in automatic draw
-afterSpeed = 100
+#configure
+config_file = 'config.json'
+configure_file = open(config_file,'r')
+configure_data = json.loads(configure_file.read())
+#print( configure_data["plotter_serial"] )
 
-#plotter connection
-serial_address = "/dev/ttyUSB0"
+def preferences(event):
+	pref_window = p.preferences(tk,file=config_file)
 
-#---------------------------------------------
-
-#this is the array of segments.
-segmentBuffer = []
-artistSegmentBuffer = []
-
-#this will stop automatic drawing at a certain point if need be
-maxArtistSegmentBufferSize = 200
-
-#---------------------------------------------
-
-#tkinter
-tk = Tk()
-tk.title( "plot" )
-canvas = Canvas(tk,width = width, height = height)
-canvas.pack(fill=BOTH, expand=1)
+plotter_aspect = configure_data["plotter_width"]/configure_data["plotter_height"]
+plotter_dimensions = vector2( float(configure_data["plotter_width"]),float(configure_data["plotter_height"]) )
+canvas_max_pixels = configure_data["canvas_max_pixels"]
+width = canvas_max_pixels
+height = canvas_max_pixels*(1/plotter_aspect)
+afterSpeed = int(configure_data["artist_delay"] * 1000) #convert to milliseconds ,how often a new line is made in automatic draw
+serial_address = configure_data["plotter_serial"] #plotter connection
+maxArtistSegmentBufferSize = configure_data["artist_max_buffer_size"]#this will stop automatic drawing at a certain point if need be
 
 #---------------------------------------------
 
 threads=[]
+segmentBuffer = []
+artistSegmentBuffer = []
+
+#---------------------------------------------
+
+canvas = Canvas(tk, width = width, height = height)
+canvas.pack(fill=BOTH, expand=1)
+canvas.bind_all("<p>", preferences)
 
 #-------------------------------------------------------------
 #  on resize
 #------------------------------------------------------------
 
-def configure(event):
-	#canvas.delete("all")
-	global width, height
-	width, height = event.width, event.height
+# def configure(event):
+# 	global width, height
+# 	width, height = event.width, event.height
 
-canvas.bind("<Configure>", configure)
+# canvas.bind("<Configure>", configure)
 
 #-------------------------------------------------------------
 #  manual drawing
@@ -133,24 +140,22 @@ class gcodeThread(threading.Thread):
 		self._stop_event = threading.Event()
 
 	def run(self):
-		#print("start gcode thread")
 		gcode( self.grbl )
-
-	# def stop(self):
-	# 	self._stop_event.set()
-
-	# def stopped(self):
-	# 	return self._stop_event.is_set()
 
 
 def gcode( grbl ):
-	global grblPlotting
+	global grblPlotting, width, height, configure_data, plotter_dimensions
 	print("start streaming gcode in thread")
 	while grblPlotting:
 		if len(segmentBuffer)>0:
 			segment = segmentBuffer.pop(0)
-			grbl.line(segment,100)
-			#print(*segmentBuffer)
+			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
+			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
+			np1 = vector2( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)) ) * plotter_dimensions
+			np2 = vector2( segment.p2.x/float(width), 1.0-(segment.p2.y/float(height)) ) * plotter_dimensions
+			ns = s(np1,np2)
+
+			grbl.line(ns,configure_data['plotter_feedrate'])
 
 _gcodeThread = gcodeThread(serial_address,args.connect)
 threads.append(_gcodeThread)
@@ -162,7 +167,6 @@ threads.append(_gcodeThread)
 def close():
 	global grblPlotting, threads
 	grblPlotting = False
-	#_gcodeThread.stop()
 	for t in threads:
 		t.join()
 
@@ -170,7 +174,7 @@ def close():
 
 tk.protocol("WM_DELETE_WINDOW", close)
 
-#-------------------------------------------------------------
+
 
 mainloop()
 
