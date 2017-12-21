@@ -54,9 +54,11 @@ afterSpeed = int(configure_data["artist_delay"] * 1000) #convert to milliseconds
 serial_address = configure_data["plotter_serial"] #plotter connection
 maxArtistSegmentBufferSize = configure_data["artist_max_buffer_size"]#this will stop automatic drawing at a certain point if need be
 
+
+
 #---------------------------------------------
 
-threads=[]
+threads = []
 segmentBuffer = []
 artistSegmentBuffer = []
 

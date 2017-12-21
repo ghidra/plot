@@ -1,26 +1,58 @@
 #programs preference dialog
 from tkinter import *
+import json
 from t import dialog
 
 class preferences(dialog):
 
     def __init__(self,parent,title = None,file=None):
+
+        self.file = file
+        self.e = {} # these are the tkinter elements that are made
+        self.v = {} # these are the tkinter variables that are made
+
         dialog.__init__(self, parent, "plot preferences")
 
     def body(self, master):
 
-        Label(master, text="First:").grid(row=0)
-        Label(master, text="Second:").grid(row=1)
+        if self.file:
+            configure_file = open(self.file,'r')
+            configure_data = json.loads(configure_file.read())
 
-        self.e1 = Entry(master)
-        self.e2 = Entry(master)
+            counter=0
+            for pref in configure_data:
+                
+                Label(master, text=pref+":").grid(row=counter)
 
-        self.e1.grid(row=0, column=1)
-        self.e2.grid(row=1, column=1)
-        return self.e1 # initial focus
+                if type( configure_data[pref] ) is str:
+                    self.v[pref] = StringVar()
+                    self.v[pref].set(configure_data[pref])
+                    self.e[pref] = Entry(master,textvariable = self.v[pref])
+                elif type( configure_data[pref] ) is bool:
+                    self.v[pref] = IntVar()
+                    self.v[pref].set(configure_data[pref])
+                    self.e[pref] = Checkbutton(master,variable = self.v[pref])
+                elif type( configure_data[pref] ) is int:
+                    self.v[pref] = IntVar()
+                    self.v[pref].set(configure_data[pref])
+                    min_ = configure_data[pref]-(configure_data[pref]*0.5)
+                    max_ = configure_data[pref]+(configure_data[pref]*0.5)
+                    self.e[pref] = Scale(master,variable = self.v[pref],orient=HORIZONTAL, from_=min_, to=max_)
+                elif type( configure_data[pref] ) is float:
+                    self.v[pref] = DoubleVar()
+                    self.v[pref].set(configure_data[pref])
+                    min_ = configure_data[pref]-(configure_data[pref]*0.5)
+                    max_ = configure_data[pref]+(configure_data[pref]*0.5) if pref != "artist_delay" else 1.0
+                    self.e[pref] = Scale(master,variable = self.v[pref],orient=HORIZONTAL, from_=min_, to=max_,resolution=0.001)
+
+                self.e[pref].grid(row=counter,column=1)
+                counter += 1
+
+        # return self.e1 # initial focus
 
     def apply(self):
-        first = int(self.e1.get())
-        second = int(self.e2.get())
-        print(first) 
-        print(second) # or something
+        # first = int(self.e1.get())
+        # second = int(self.e2.get())
+        # print(first) 
+        # print(second) # or something
+        pass
