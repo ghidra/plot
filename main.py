@@ -150,7 +150,7 @@ def gcode( grbl ):
 	while grblPlotting:
 		if len(segmentBuffer)>0:
 			segment = segmentBuffer.pop(0)
-			grbl.line(segment)
+			grbl.line(segment,100)
 			#print(*segmentBuffer)
 
 _gcodeThread = gcodeThread()
