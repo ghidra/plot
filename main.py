@@ -149,8 +149,8 @@ def gcode( grbl ):
 	global grblPlotting, width, height, configure_data, plotter_dimensions
 	print("start streaming gcode in thread")
 	while grblPlotting:
-		if len(artistSegmentBuffer)>0:
-			segment = artistSegmentBuffer.pop(0)
+		if len(segmentBuffer)>0:
+			segment = segmentBuffer.pop(0)
 			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
 			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
 			np1 = vector2( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)) ) * plotter_dimensions
