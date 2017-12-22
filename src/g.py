@@ -39,13 +39,13 @@ class g:
 		if self.connected:
 			self.inBuffer.append(len(block)+1) # Track number of characters in grbl serial read buffer
 
-			while sum(self.inBuffer) >= self.RX_BUFFER_SIZE-1 | s.inWaiting() :
-				out_temp = s.readline().strip() # Wait for grbl response
+			while sum(self.inBuffer) >= self.RX_BUFFER_SIZE-1 | self.device.inWaiting() :
+				out_temp = self.device.readline().strip() # Wait for grbl response
 				if out_temp.find('ok') < 0 and out_temp.find('error') < 0 :
 					print ("  Debug: ",out_temp) # Debug response
 				else :
 					del self.inBuffer[0] # Delete the block character count corresponding to the last 'ok'
-			s.write(bytes(block + "\n", 'UTF-8')) # Send g-code block to grbl
+			self.device.write(bytes(block + "\n", 'UTF-8')) # Send g-code block to grbl
 		
 		print(block)
 
