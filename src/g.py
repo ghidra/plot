@@ -40,7 +40,7 @@ class g:
 			self.inBuffer.append(len(block)+1) # Track number of characters in grbl serial read buffer
 
 			while sum(self.inBuffer) >= self.RX_BUFFER_SIZE-1 | self.device.inWaiting() :
-				out_temp = self.device.readline().strip() # Wait for grbl response
+				out_temp = self.device.readline().strip().decode('utf-8') # Wait for grbl response
 				if out_temp.find('ok') < 0 and out_temp.find('error') < 0 :
 					print ("  Debug: ",out_temp) # Debug response
 				else :
