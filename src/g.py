@@ -20,7 +20,7 @@ class g:
 		self.incremental = incremental
 
 		if connected:
-			self.device = serial.Serial(serial_address,baud)
+			self.device = serial.Serial(self.address,self.baud)
 			self.device.write("\r\n\r\n")
 		
 		threading.Timer(2, self.flushOnWake).start()
