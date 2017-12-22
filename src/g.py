@@ -21,7 +21,7 @@ class g:
 
 		if connected:
 			self.device = serial.Serial(self.address,self.baud)
-			self.device.write("\r\n\r\n")
+			self.device.write(bytes("\r\n\r\n", 'UTF-8'))
 		
 		threading.Timer(2, self.flushOnWake).start()
 		#print("int gcode thread")
@@ -45,7 +45,7 @@ class g:
 					print ("  Debug: ",out_temp) # Debug response
 				else :
 					del self.inBuffer[0] # Delete the block character count corresponding to the last 'ok'
-			s.write(block + '\n') # Send g-code block to grbl
+			s.write(bytes(block + "\n", 'UTF-8')) # Send g-code block to grbl
 		
 		print(block)
 

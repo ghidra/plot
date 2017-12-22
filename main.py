@@ -107,15 +107,15 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 #  automatic drawing
 #------------------------------------------------------------
 
-class drawThread(threading.Thread):
-	def __init__( self, width, height ):
-		threading.Thread.__init__(self)
-		self.artist = a_01_helloWorld.a_01_helloWorld( vector2(width/2.0,height/2.0) )
-		self.start()
+# class drawThread(threading.Thread):
+# 	def __init__( self, width, height ):
+# 		threading.Thread.__init__(self)
+# 		self.artist = a_01_helloWorld.a_01_helloWorld( vector2(width/2.0,height/2.0) )
+# 		self.start()
 
-	def run(self):
-		print( "start drawing thread" )
-		draw( self.artist )
+# 	def run(self):
+# 		print( "start drawing thread" )
+# 		draw( self.artist )
 
 def draw( artist ):
 
@@ -126,8 +126,11 @@ def draw( artist ):
 
 	tk.after(afterSpeed,draw,artist)
 
-_drawThread = drawThread(width, height)
-threads.append(_drawThread)
+# _drawThread = drawThread(width, height)
+# threads.append(_drawThread)
+
+_artist = a_01_helloWorld.a_01_helloWorld( vector2(width/2.0,height/2.0) )
+draw(_artist)
 
 #-------------------------------------------------------------
 #  plotter
