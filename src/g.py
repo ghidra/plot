@@ -2,6 +2,7 @@
 
 import serial #"python -m pip install pyserial"
 import threading
+import itertools #this is so I can know what type of vectors we are working with
 from v import *
 
 class g:
@@ -50,13 +51,22 @@ class g:
 		print(block)
 
 	def line(self,segment,feedrate):
+		#if type(segment.p1).__name__ is 'vector3':
+
 		if self.incremental:
 			#this is the incremental mode... so we have to do some calulating here
 			direction = segment.p2-segment.p1
-			self.stream( 'G1 X'+str(direction.x)+' Y'+str(direction.y)+' F'+str(feedrate) )
+			code = 'G1 X'+str(direction.x)+' Y'+str(direction.y)
+			if type(direction).__name__ is 'vector3':
+				code +=  ' Z'+str(direction.z)
+			self.stream( code+' F'+str(feedrate) )
 		else:
 			#this is absolute mode
-			self.stream( 'G1 X'+str(segment.p2.x)+' Y'+str(segment.p2.y)+' F'+str(feedrate) )
+			code = 'G0' if segment.rapid else 'G1'
+			code += ' X'+str(segment.p2.x)+' Y'+str(segment.p2.y)
+			if type(segment.p2).__name__ is 'vector3':
+				code +=  ' Z'+str(segment.p2.z)
+			self.stream( code+' F'+str(feedrate) )
 		#this draws a line from a given segment
 		#print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.x)+","+str(segment.p2.y) )
 

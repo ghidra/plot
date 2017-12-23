@@ -46,7 +46,7 @@ def preferences(event):
 	pref_window = p.preferences(tk,file=config_file)
 
 plotter_aspect = configure_data["plotter_width"]/configure_data["plotter_height"]
-plotter_dimensions = vector2( float(configure_data["plotter_width"]),float(configure_data["plotter_height"]) )
+plotter_dimensions = vector3( float(configure_data["plotter_width"]),float(configure_data["plotter_height"]), 1.0 )
 canvas_max_pixels = configure_data["canvas_max_pixels"]
 width = canvas_max_pixels
 height = canvas_max_pixels*(1/plotter_aspect)
@@ -82,7 +82,7 @@ canvas.bind_all("<p>", preferences)
 #  manual drawing
 #-------------------------------------------------------------
 mousePlotting = False
-mouseStartPos = []
+mouseStartPos = [0.0,0.0]
 
 def mouseRelease(event):
 	global mousePlotting
@@ -91,11 +91,18 @@ def mouseRelease(event):
 def mousePlot(event):
 	global mousePlotting, mouseStartPos
 	if not mousePlotting:
+		#lift pen
+		segmentBuffer.append( s( vector3(mouseStartPos[0],mouseStartPos[1],0.0), vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), True ) )
+		#get to point to drop pen
+		segmentBuffer.append( s( vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), vector3(event.x, event.y,configure_data["plotter_skate_height"]), True ) )
+		#drop pen
+		segmentBuffer.append( s( vector3(event.x, event.y,configure_data["plotter_skate_height"]), vector3(event.x, event.y,0.0) ) )
+		
 		mouseStartPos = [ event.x, event.y ]
 		mousePlotting = True
 	else:
 		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
-		segment = s( vector2(mouseStartPos[0],mouseStartPos[1]),vector2(event.x,event.y) )
+		segment = s( vector3(mouseStartPos[0],mouseStartPos[1],0.0),vector3(event.x,event.y,0.0) )
 		segmentBuffer.append(segment)
 		mouseStartPos = [ event.x, event.y ]
 
@@ -156,9 +163,9 @@ def gcode( grbl ):
 			segment = segmentBuffer.pop(0)
 			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
 			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
-			np1 = vector2( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)) ) * plotter_dimensions
-			np2 = vector2( segment.p2.x/float(width), 1.0-(segment.p2.y/float(height)) ) * plotter_dimensions
-			ns = s(np1,np2)
+			np1 = vector3( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)), segment.p1.z ) * plotter_dimensions
+			np2 = vector3( segment.p2.x/float(width), 1.0-(segment.p2.y/float(height)), segment.p2.z ) * plotter_dimensions
+			ns = s(np1,np2,segment.rapid)
 
 			grbl.line(ns,configure_data['plotter_feedrate'])
 
