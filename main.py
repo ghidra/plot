@@ -82,7 +82,7 @@ canvas.bind_all("<p>", preferences)
 #  manual drawing
 #-------------------------------------------------------------
 mousePlotting = False
-mouseStartPos = [0.0,0.0]
+mouseStartPos = [0.0,height]#i have to do this cause y is inverted remember
 
 def mouseRelease(event):
 	global mousePlotting

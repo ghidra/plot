@@ -1,8 +1,8 @@
 {
 
 "plotter_serial":"/dev/ttyUSB0",
-"plotter_width": 256,
-"plotter_height": 256,
+"plotter_width": 128,
+"plotter_height": 128,
 "plotter_skate_height": 10,
 "plot_in_inches" : false,
 "plot_movement_incremental" : false,
