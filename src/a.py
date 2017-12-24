@@ -11,7 +11,18 @@ class a:
 		self.tick = 0.0
 		self.elapse = 0.0
 		self.turtle = vector2()
+		self.segment = s(vector2(),vector2())
 		
 	def update(self):
-		print("we are updating from base, you shouldn't be")
-		return s(vector2(),vector2())
+		self.tick = (time.time()-self.last)
+		self.elapse += self.tick
+		# self.last = time.time()
+		# return s(vector2(),vector2())
+
+	def advect(self,v):
+		newpos = self.turtle + v
+		self.segment = s( self.turtle, newpos )
+		self.turtle = newpos
+
+	def update_finish(self):
+		self.last = time.time()

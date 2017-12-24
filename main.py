@@ -20,7 +20,8 @@ from s import s
 #import n
 from g import g
 
-import a_01_helloWorld
+# import a_01_helloWorld
+import a_02
 
 #---------------------------------------------
 
@@ -136,7 +137,7 @@ def draw( artist ):
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
 
-_artist = a_01_helloWorld.a_01_helloWorld( vector2(width/2.0,height/2.0) )
+_artist = a_02.a_02( vector2(width/2.0,height/2.0) )
 draw(_artist)
 
 #-------------------------------------------------------------
