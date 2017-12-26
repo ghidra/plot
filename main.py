@@ -129,15 +129,16 @@ def draw( artist ):
 
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		segment = artist.update()
-		canvas.create_line(segment.p1.x,segment.p1.y,segment.p2.x,segment.p2.y,fill=segment.color)
-		artistSegmentBuffer.append(segment)
+		if segment.valid:
+			canvas.create_line(segment.p1.x,segment.p1.y,segment.p2.x,segment.p2.y,fill=segment.color)
+			artistSegmentBuffer.append(segment)
 
 	tk.after(afterSpeed,draw,artist)
 
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
 
-_artist = a_02.a_02( vector2(width/2.0,height/2.0) )
+_artist = a_02.a_02( vector2(width,height) )
 draw(_artist)
 
 #-------------------------------------------------------------

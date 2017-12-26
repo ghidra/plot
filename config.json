@@ -9,6 +9,6 @@
 "plotter_feedrate": 1200,
 "canvas_max_pixels": 800,
 "artist_delay" : 0.1,
-"artist_max_buffer_size" : 200
+"artist_max_buffer_size" : 999999999
 
 }

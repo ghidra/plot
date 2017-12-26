@@ -6,10 +6,13 @@ from v import vector2
 from s import s
 
 class a:
-	def __init__(self):
+	def __init__(self,dimensions):
 		self.last = time.time()
 		self.tick = 0.0
 		self.elapse = 0.0
+		self.dimensions = dimensions
+		self.center = dimensions*0.5
+		self.speed = 1.0
 		self.turtle = vector2()
 		self.segment = s(vector2(),vector2())
 		
