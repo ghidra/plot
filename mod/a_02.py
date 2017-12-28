@@ -10,12 +10,14 @@ class a_02(a):
 	def __init__(self,dimensions):
 		super().__init__(dimensions)
 		#i want to start a little off center
-		self.turtle = dimensions*0.55
+		self.turtle = dimensions*0.75
 
 		self.radius = vector2.length(self.turtle-self.center)
 		self.speed = 0.49
 		self.collapse = 0.01 #how fast it goes toward the center...
 		self.phase = 6.5 #how often we are "off"
+
+		self.aspect = 3.2 #how much we see in the middle
 
 		self.noisemag = 3.33
 		self.noisescale = 0.001
@@ -33,7 +35,10 @@ class a_02(a):
 		super().update()
 
 		# np = n.curl3( vector3(self.turtle.x+9.34,self.turtle.y,self.elapse)*0.001 ) * 100.0 * self.tick
-
+		#check if we are inside the aspect we want to keep
+		visible = self.dimensions.y*(1.0/self.aspect)*0.5
+		
+		# if self.radius > 0.0 and self.turtle.y < self.center.y+visible and self.turtle.y > self.center.y-visible:
 		if self.radius > 0.0:
 			self.radius-=self.collapse
 			# rate = self.elapse*self.speed
@@ -42,6 +47,9 @@ class a_02(a):
 
 			self.advect( direction ) 
 			self.update_finish()
+
+			if self.turtle.y > self.center.y+visible or self.turtle.y < self.center.y-visible:
+				self.segment = s(vector2(),vector2())
 		else:
 			self.segment = s(vector2(),vector2())
 

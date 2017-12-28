@@ -14,17 +14,16 @@ def curl2( p ):
 	return curl3(v.vector3(p.x,p.y,0.0))
 
 def curl3( p ):
-	dx = v.vector3(0.1, 0.0, 0.0)
-	dy = v.vector3(0.0, 0.1, 0.0)
-	dz = v.vector3(0.0, 0.0, 0.1)
+	e = 0.1
+	dx = v.vector3(e, 0.0, 0.0)
+	dy = v.vector3(0.0, e, 0.0)
+	dz = v.vector3(0.0, 0.0, e)
 	p_x0 = snoise3(p - dx)
 	p_x1 = snoise3(p + dx)
 	p_y0 = snoise3(p - dy)
 	p_y1 = snoise3(p + dy)
 	p_z0 = snoise3(p - dz)
 	p_z1 = snoise3(p + dz)
-
-	e = 2.71828
  
 	return v.vector3.normalize(v.vector3(p_y1.z - p_y0.z - p_z1.y + p_z0.y, p_z1.x - p_z0.x - p_x1.z + p_x0.z, p_x1.y - p_x0.y - p_y1.x + p_y0.x) * (1.0 / (2.0 * e)) )
 
