@@ -7,8 +7,8 @@ from v import *
 import n
 
 class a_01_helloWorld(a):
-	def __init__(self,dimensions):
-		super().__init__(dimensions)
+	def __init__(self,dimensions,skateheight):
+		super().__init__(dimensions,skateheight)
 		self.turtle = self.dimensions*0.5
 	
 	def update(self):

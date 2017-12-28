@@ -138,7 +138,7 @@ def draw( artist ):
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
 
-_artist = a_02.a_02( vector2(width,height) )
+_artist = a_02.a_02( vector2(width,height), configure_data["plotter_skate_height"] )
 draw(_artist)
 
 #-------------------------------------------------------------

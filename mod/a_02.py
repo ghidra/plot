@@ -7,8 +7,8 @@ from v import *
 import n
 
 class a_02(a):
-	def __init__(self,dimensions):
-		super().__init__(dimensions)
+	def __init__(self,dimensions,skateheight):
+		super().__init__(dimensions,skateheight)
 		#i want to start a little off center
 		self.turtle = dimensions*0.75
 
