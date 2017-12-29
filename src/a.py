@@ -15,7 +15,10 @@ class a:
 		self.center = dimensions*0.5
 		self.speed = 1.0
 		self.turtle = vector2()
-		self.segment = s(vector2(),vector2())
+		self.turtle_last = vector2()
+		self.segment = [ s(vector3(),vector3()) ]
+
+		self.skating = False
 		
 	def update(self):
 		self.tick = (time.time()-self.last)
@@ -24,15 +27,20 @@ class a:
 		# return s(vector2(),vector2())
 
 	def lift(self, position):
-		return s( vector3(position.x,position.y,0.0), vector3(position.x,position.y,self.skateheight ), True )
+		self.skating = True
+		seg = s( vector3(position.x,position.y,0.0), vector3(position.x,position.y,self.skateheight ), True, False )
+		return seg
 	def skate(self,a,b):
-		return s( vector3(a.x,a.y,self.skateheight), vector3(b.x, b.y,self.skateheight), True )
+		seg = s( vector3(a.x,a.y,self.skateheight), vector3(b.x, b.y,self.skateheight), True, False )
+		return seg
 	def drop(self, position) :
-		return s( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0) )
+		self.skating = False
+		seg = s( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
+		return seg
 
 	def advect(self,v):
 		newpos = self.turtle + v
-		self.segment = s( self.turtle, newpos )
+		self.segment = [ s( vector3(self.turtle.x,self.turtle.y,0.0), vector3(newpos.x,newpos.y,0.0) ) ]
 		self.turtle = newpos
 
 	def update_finish(self):

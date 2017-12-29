@@ -29,7 +29,7 @@ class a_02(a):
 		self.waitcount = 0
 		self.ready = False # i want to wait before recording
 
-		self.turtle = self.getcircle()
+		self.turtle = self.getcircle() #go ahead and place this
 	
 	def update(self):
 		super().update()
@@ -49,17 +49,31 @@ class a_02(a):
 			self.update_finish()
 
 			if self.turtle.y > self.center.y+visible or self.turtle.y < self.center.y-visible:
-				self.segment = s(vector2(),vector2())
+				if not self.skating:
+					point = self.segment[0].p1
+					self.turle_last = vector2(point.x,point.y)
+					self.segment = [ self.lift( point ) ]
+				else:
+					self.segment = [ s(vector3(),vector3()) ]
+			else:
+				if self.skating:
+					point = self.segment[0].p1
+					self.segment.insert(0, self.drop( point ) ) #drop to position first.. then its prepended to skate
+					self.segment.insert(0, self.skate(self.turle_last, point) ) #skate to position
 		else:
-			self.segment = s(vector2(),vector2())
+			self.segment = [ s(vector3(),vector3()) ]
+
+		#--------------------------
 
 		if self.ready:
 			return self.segment
 		else:
 			if self.waitcount > self.wait:
 				self.ready = True
+				self.turle_last = vector2(0.0,self.dimensions.y)
+				return [ self.lift( self.turle_last ) ]
 			self.waitcount+=1
-			return s(vector2(),vector2())
+			return [ s(vector3(),vector3()) ]
 
 	def getcircle(self):
 		rate = self.elapse*self.speed

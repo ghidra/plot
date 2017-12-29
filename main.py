@@ -129,9 +129,11 @@ def draw( artist ):
 
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		segment = artist.update()
-		if segment.valid:
-			canvas.create_line(segment.p1.x,segment.p1.y,segment.p2.x,segment.p2.y,fill=segment.color)
-			artistSegmentBuffer.append(segment)
+		if segment[0].valid:
+			artistSegmentBuffer.extend(segment)
+			for seg in segment:
+				if seg.draw:
+					canvas.create_line(seg.p1.x,seg.p1.y,seg.p2.x,seg.p2.y,fill=seg.color)
 
 	tk.after(afterSpeed,draw,artist)
 
@@ -161,8 +163,8 @@ def gcode( grbl ):
 	global grblPlotting, width, height, configure_data, plotter_dimensions
 	print("start streaming gcode in thread")
 	while grblPlotting:
-		if len(segmentBuffer)>0:
-			segment = segmentBuffer.pop(0)
+		if len(artistSegmentBuffer)>0:
+			segment = artistSegmentBuffer.pop(0)
 			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
 			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
 			np1 = vector3( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)), segment.p1.z ) * plotter_dimensions
