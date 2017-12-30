@@ -1,12 +1,12 @@
 import os
 import time
 os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-from a import a
-from s import s
-from v import *
+from artist import artist
+from segment import segment
+from vector import *
 import n
 
-class a_02(a):
+class a_02(artist):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 		#i want to start a little off center
@@ -54,14 +54,14 @@ class a_02(a):
 					self.turle_last = vector2(point.x,point.y)
 					self.segment = [ self.lift( point ) ]
 				else:
-					self.segment = [ s(vector3(),vector3()) ]
+					self.segment = [ segment(vector3(),vector3()) ]
 			else:
 				if self.skating:
 					point = self.segment[0].p1
 					self.segment.insert(0, self.drop( point ) ) #drop to position first.. then its prepended to skate
 					self.segment.insert(0, self.skate(self.turle_last, point) ) #skate to position
 		else:
-			self.segment = [ s(vector3(),vector3()) ]
+			self.segment = [ segment(vector3(),vector3()) ]
 
 		#--------------------------
 
@@ -73,7 +73,7 @@ class a_02(a):
 				self.turle_last = vector2(0.0,self.dimensions.y)
 				return [ self.lift( self.turle_last ) ]
 			self.waitcount+=1
-			return [ s(vector3(),vector3()) ]
+			return [ segment(vector3(),vector3()) ]
 
 	def getcircle(self):
 		rate = self.elapse*self.speed

@@ -3,9 +3,9 @@
 import serial #"python -m pip install pyserial"
 import threading
 import itertools #this is so I can know what type of vectors we are working with
-from v import *
+from vector import *
 
-class g:
+class grbl:
 	def __init__(self,thread,address,connected=False,inches=False,incremental=False):
 		self.thread = thread #this is the thread that called this... so we can return the favor and start it later
 		self.address = address

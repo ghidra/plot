@@ -13,12 +13,12 @@ else:
 	sys.path.append(os.getcwd()+"/src")
 	sys.path.append(os.getcwd()+"/mod")
 
-import p
+from preferences import preferences
 
-from v import *
-from s import s
+from vector import *
+from segment import segment
 #import n
-from g import g
+from grbl import grbl
 
 # import a_01_helloWorld
 import a_02
@@ -43,8 +43,8 @@ configure_file = open(config_file,'r')
 configure_data = json.loads(configure_file.read())
 #print( configure_data["plotter_serial"] )
 
-def preferences(event):
-	pref_window = p.preferences(tk,file=config_file)
+def call_preferences(event):
+	pref_window = preferences(tk,file=config_file)
 
 plotter_aspect = configure_data["plotter_width"]/configure_data["plotter_height"]
 plotter_dimensions = vector3( float(configure_data["plotter_width"]),float(configure_data["plotter_height"]), 1.0 )
@@ -67,7 +67,7 @@ artistSegmentBuffer = []
 
 canvas = Canvas(tk, width = width, height = height)
 canvas.pack(fill=BOTH, expand=1)
-canvas.bind_all("<p>", preferences)
+canvas.bind_all("<p>", call_preferences)
 
 #-------------------------------------------------------------
 #  on resize
@@ -93,18 +93,18 @@ def mousePlot(event):
 	global mousePlotting, mouseStartPos
 	if not mousePlotting:
 		#lift pen
-		segmentBuffer.append( s( vector3(mouseStartPos[0],mouseStartPos[1],0.0), vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), True ) )
+		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],0.0), vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), True ) )
 		#get to point to drop pen
-		segmentBuffer.append( s( vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), vector3(event.x, event.y,configure_data["plotter_skate_height"]), True ) )
+		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), vector3(event.x, event.y,configure_data["plotter_skate_height"]), True ) )
 		#drop pen
-		segmentBuffer.append( s( vector3(event.x, event.y,configure_data["plotter_skate_height"]), vector3(event.x, event.y,0.0) ) )
+		segmentBuffer.append( segment( vector3(event.x, event.y,configure_data["plotter_skate_height"]), vector3(event.x, event.y,0.0) ) )
 		
 		mouseStartPos = [ event.x, event.y ]
 		mousePlotting = True
 	else:
 		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
-		segment = s( vector3(mouseStartPos[0],mouseStartPos[1],0.0),vector3(event.x,event.y,0.0) )
-		segmentBuffer.append(segment)
+		seg = segment( vector3(mouseStartPos[0],mouseStartPos[1],0.0),vector3(event.x,event.y,0.0) )
+		segmentBuffer.append(seg)
 		mouseStartPos = [ event.x, event.y ]
 
 
@@ -128,12 +128,12 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 def draw( artist ):
 
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
-		segment = artist.update()
-		if segment[0].valid:
-			artistSegmentBuffer.extend(segment)
-			for seg in segment:
-				if seg.draw:
-					canvas.create_line(seg.p1.x,seg.p1.y,seg.p2.x,seg.p2.y,fill=seg.color)
+		seg = artist.update()
+		if seg[0].valid:
+			artistSegmentBuffer.extend(seg)
+			for s in seg:
+				if s.draw:
+					canvas.create_line(s.p1.x,s.p1.y,s.p2.x,s.p2.y,fill=s.color)
 
 	tk.after(afterSpeed,draw,artist)
 
@@ -152,26 +152,26 @@ grblPlotting = True #this makes it so we can turn off the while loop basically. 
 class gcodeThread(threading.Thread):
 	def __init__( self, serial_address, connect ):
 		threading.Thread.__init__(self)
-		self.grbl = g(self,serial_address,connect)
+		self.grbl = grbl(self,serial_address,connect)
 		self._stop_event = threading.Event()
 
 	def run(self):
 		gcode( self.grbl )
 
 
-def gcode( grbl ):
+def gcode( g ):
 	global grblPlotting, width, height, configure_data, plotter_dimensions
-	print("start streaming gcode in thread")
+	# print("start streaming gcode in thread")
 	while grblPlotting:
 		if len(artistSegmentBuffer)>0:
-			segment = artistSegmentBuffer.pop(0)
+			seg = artistSegmentBuffer.pop(0)
 			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
 			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
-			np1 = vector3( segment.p1.x/float(width), 1.0-(segment.p1.y/float(height)), segment.p1.z ) * plotter_dimensions
-			np2 = vector3( segment.p2.x/float(width), 1.0-(segment.p2.y/float(height)), segment.p2.z ) * plotter_dimensions
-			ns = s(np1,np2,segment.rapid)
+			np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
+			np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
+			ns = segment(np1,np2,seg.rapid)
 
-			grbl.line(ns,configure_data['plotter_feedrate'])
+			g.line(ns,configure_data['plotter_feedrate'])
 
 _gcodeThread = gcodeThread(serial_address,args.connect)
 threads.append(_gcodeThread)

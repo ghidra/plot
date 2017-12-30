@@ -1,12 +1,12 @@
 import os
 import time
 os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-from a import a
-from s import s
-from v import *
+from artist import artist
+from segment import segment
+from vector import *
 import n
 
-class a_01_helloWorld(a):
+class a_01_helloWorld(artist):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 		self.turtle = self.dimensions*0.5

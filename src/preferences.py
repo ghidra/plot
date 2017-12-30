@@ -1,7 +1,7 @@
 #programs preference dialog
 from tkinter import *
 import json
-from t import dialog
+from tkhelpers import dialog
 
 class preferences(dialog):
 

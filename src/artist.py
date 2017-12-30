@@ -2,10 +2,10 @@
 #used to draw with the after method on the tkinter canvas
 #update should return a segment, class "s"
 import time
-from v import *
-from s import s
+from vector import *
+from segment import segment
 
-class a:
+class artist:
 	def __init__(self,dimensions,skateheight):
 		self.last = time.time()
 		self.tick = 0.0
@@ -16,7 +16,7 @@ class a:
 		self.speed = 1.0
 		self.turtle = vector2()
 		self.turtle_last = vector2()
-		self.segment = [ s(vector3(),vector3()) ]
+		self.segment = [ segment(vector3(),vector3()) ]
 
 		self.skating = False
 		
@@ -28,19 +28,19 @@ class a:
 
 	def lift(self, position):
 		self.skating = True
-		seg = s( vector3(position.x,position.y,0.0), vector3(position.x,position.y,self.skateheight ), True, False )
+		seg = segment( vector3(position.x,position.y,0.0), vector3(position.x,position.y,self.skateheight ), True, False )
 		return seg
 	def skate(self,a,b):
-		seg = s( vector3(a.x,a.y,self.skateheight), vector3(b.x, b.y,self.skateheight), True, False )
+		seg = segment( vector3(a.x,a.y,self.skateheight), vector3(b.x, b.y,self.skateheight), True, False )
 		return seg
 	def drop(self, position) :
 		self.skating = False
-		seg = s( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
+		seg = segment( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
 		return seg
 
 	def advect(self,v):
 		newpos = self.turtle + v
-		self.segment = [ s( vector3(self.turtle.x,self.turtle.y,0.0), vector3(newpos.x,newpos.y,0.0) ) ]
+		self.segment = [ segment( vector3(self.turtle.x,self.turtle.y,0.0), vector3(newpos.x,newpos.y,0.0) ) ]
 		self.turtle = newpos
 
 	def update_finish(self):
