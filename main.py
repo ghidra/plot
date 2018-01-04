@@ -9,9 +9,11 @@ import platform
 if(platform.system() == "Windows"):
 	sys.path.append(os.getcwd()+"\\src")
 	sys.path.append(os.getcwd()+"\\mod")
+	# sys.path.append(os.getcwd()+"\\mod\\assets")
 else:
 	sys.path.append(os.getcwd()+"/src")
 	sys.path.append(os.getcwd()+"/mod")
+	# sys.path.append(os.getcwd()+"/mod/assets")
 
 from preferences import preferences
 

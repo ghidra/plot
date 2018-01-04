@@ -10,6 +10,8 @@ class a3_01_cube(artist3):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 		self.turtle = self.dimensions*0.5
+
+		self.load_asset("cube")
 	
 	def update(self):
 		super().update()

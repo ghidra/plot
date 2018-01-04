@@ -1,7 +1,10 @@
 import os
+import json
+import platform
 os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 from artist import artist
 from matrix import *
+from vector import *
 
 class artist3(artist):
 	def __init__(self,dimensions,skateheight,fov=None,near=None,far=None):
@@ -31,6 +34,8 @@ class artist3(artist):
 		self.rm	= matrix4();
 		
 		self.frustum = self.make_frustum();
+
+		self.assets = []
 	
 	def make_frustum(self):
 		cosf = math.cos(math.sqrt(self.rfov))
@@ -76,3 +81,27 @@ class artist3(artist):
 		# this._obj[0]._normallist[5]._w = 0;
 		
 		# this._obj[0].find_bounding_sphere();
+
+	def load_asset(self,asset):
+
+		path="mod"
+		if(platform.system() == "Windows"):
+			path+="\\assets\\"
+		else:
+			path+="/assets/"
+
+		configure_file = open(path+asset+".json",'r')
+		configure_data = json.loads(configure_file.read())
+
+		new_asset = {}
+
+		for pref in configure_data:
+			if pref == "name":
+				new_asset["name"] = configure_data[pref]
+			if pref == "points":
+				new_points = []
+				for i in range( len(configure_data[pref])//3 ):
+					new_points.append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
+				new_asset["points"] = new_points
+			
+			self.assets.append(new_asset)
