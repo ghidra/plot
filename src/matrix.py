@@ -158,3 +158,6 @@ class matrix4(matrix3):
 		rollcos = math.cos(d)
 
 		return self.multiply( matrix4( rollcos, -(rollsin),	0, 0, rollsin, rollcos,	0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ) )
+
+	def printable(self):
+		return str(self._n11)+", "+str(self._n12)+", "+str(self._n13)+", "+str(self._n14)+", "+str(self._n21)+", "+str(self._n22)+", "+str(self._n23)+", "+str(self._n24)+", "+str(self._n31)+", "+str(self._n32)+", "+str(self._n33)+", "+str(self._n34)+", "+str(self._n41)+", "+str(self._n42)+", "+str(self._n43)+", "+str(self._n44)

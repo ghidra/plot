@@ -25,13 +25,13 @@ class artist3(artist):
 		self.far = far
 		self.ratio	= dimensions.x/dimensions.y
 		
-		self.ttm = matrix4();
-		self.trm = matrix4();
-		self.rnm = matrix4();
+		self.ttm = matrix4()
+		self.trm = matrix4()
+		self.rnm = matrix4()
 		
-		self.pm	= matrix4();#projection matrix
-		self.vm	= matrix4();#view matrix
-		self.rm	= matrix4();
+		self.pm	= matrix4()#projection matrix
+		self.vm	= matrix4()#view matrix
+		self.rm	= matrix4()
 		
 		self.frustum = self.make_frustum();
 
@@ -53,34 +53,6 @@ class artist3(artist):
 		self.pm = matrix4( vector4(cosf,0,0,0),vector4(0,-cosf,0,0),vector4(0,0,sinf/nf,-(math.sin(1)/nf)*self.near),vector4(0,0,sinf,0) )
 		self.vm = matrix4( vector4(99,0,0,self.dimensions.x),vector4(0,99,0,self.dimensions.y) ) # i dobnt know what the 99 is
 		self.rm = self.pm.multiply(self.vm)
-		
-		# this._obj[0] = new geometry();//create the frustum object
-		
-		# this._obj[0].addpoint ([x_near, y_near, this._near]); // Near, right, top
-		# this._obj[0].addpoint ([x_near,-y_near, this._near]); // Near, right, bottom
-		# this._obj[0].addpoint ([-x_near,-y_near, this._near]); // Near, left, bottom
-		# this._obj[0].addpoint ([-x_near, y_near, this._near]); // Near, left, top
-		
-		# this._obj[0].addpoint ([x_far,  y_far,  this._far]);  // Far, right, top
-		# this._obj[0].addpoint ([x_far, -y_far,  this._far]);  // Far, right, bottom
-		# this._obj[0].addpoint ([-x_far, -y_far,  this._far]);  // Far, left, bottom
-		# this._obj[0].addpoint ([-x_far,  y_far,  this._far]);  // Far, left, top
-		
-		# this._obj[0].addpoly([0,1,2,3],"wire");//near//I'm building all this polys counter closck wise to build positve normals pointing into frustum
-		# this._obj[0].addpoly([7,6,5,4],"wire");//far	
-		# this._obj[0].addpoly([4,5,1,0],"wire");//right
-		# this._obj[0].addpoly([7,3,2,6],"wire");//left
-		# this._obj[0].addpoly([4,0,3,7],"wire");//top
-		# this._obj[0].addpoly([1,5,6,2],"wire");//bottom
-
-		# this._obj[0]._normallist[0]._w = -this._near;
-		# this._obj[0]._normallist[1]._w = -this._far;
-		# this._obj[0]._normallist[2]._w = 0;
-		# this._obj[0]._normallist[3]._w = 0;
-		# this._obj[0]._normallist[4]._w = 0;
-		# this._obj[0]._normallist[5]._w = 0;
-		
-		# this._obj[0].find_bounding_sphere();
 
 	def load_asset(self,asset):
 
@@ -96,12 +68,50 @@ class artist3(artist):
 		new_asset = {}
 
 		for pref in configure_data:
+			#------------------------------------
 			if pref == "name":
 				new_asset["name"] = configure_data[pref]
+			#------------------------------------
 			if pref == "points":
 				new_points = []
 				for i in range( len(configure_data[pref])//3 ):
 					new_points.append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
 				new_asset["points"] = new_points
+			#------------------------------------
+			if pref == "segments":
+				new_asset["segments"] = list(configure_data[pref])
+			#------------------------------------
+			new_asset["rnm"] = matrix4()
+
+		self.assets.append(new_asset)
+
+	def render(self):
+		#we need to move the assets to render space
+
+		# render = []
+
+		#for each asset, lets start transforming points
+		for asset in self.assets:
 			
-			self.assets.append(new_asset)
+			newttm = matrix4()
+			newttm = newttm.multiply( self.rnm ).multiply( asset["rnm"] )
+			newttm = newttm.multiply( self.rm )
+
+			#store out newly transformed points
+			new_points = []
+			#transform each point
+			# print(self.rnm.printable())
+			# print(asset["rnm"].printable())
+			# print(self.rm.printable())
+			for p in asset["points"]:
+				point = vector4(p.x,p.y,p.z,1.0)
+				point = point.mult_matrix4( newttm );
+
+				
+				ux = point.x / point.w;
+				uy = point.y / point.w;
+				uz = point.z / point.w; #z is kind of useless in this case
+
+				new_points.append( vector3(ux,uy,uz) )
+
+				#print("x:"+str(ux)+", y:"+str(uy))

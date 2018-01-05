@@ -6,10 +6,11 @@ import itertools #this is so I can know what type of vectors we are working with
 from vector import *
 
 class grbl:
-	def __init__(self,thread,address,connected=False,inches=False,incremental=False):
+	def __init__(self,thread,address,connected=False,inches=False,incremental=False,verbose=False):
 		self.thread = thread #this is the thread that called this... so we can return the favor and start it later
 		self.address = address
 		self.connected = connected # this is just here if we are testing without a plotter connected, we bypass all plotter code
+		self.verbose = verbose
 
 		self.baud = 9600
 		self.inBuffer = [] # Track number of characters in grbl serial read buffer
@@ -48,7 +49,8 @@ class grbl:
 					del self.inBuffer[0] # Delete the block character count corresponding to the last 'ok'
 			self.device.write(bytes(block + "\n", 'UTF-8')) # Send g-code block to grbl
 		
-		print(block)
+		if self.verbose:
+			print(block)
 
 	def line(self,segment,feedrate):
 		#if type(segment.p1).__name__ is 'vector3':

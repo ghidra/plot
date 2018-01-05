@@ -145,8 +145,16 @@ class vector3(vector2):
 
 class vector4(vector3):
 	def __init__(self,x=None,y=None,z=None,w=None):
-	 	super().__init__(x,y,z)
-	 	if w is None:
-	 		self.w = 0.0
-	 	else:
-	 		self.w = w
+		super().__init__(x,y,z)
+		if w is None:
+			self.w = 0.0
+		else:
+			self.w = w
+
+	def mult_matrix4(self,m):
+		x = m._n11 * self.x + m._n12 * self.y + m._n13 * self.z + m._n14 * self.w;
+		y = m._n21 * self.x + m._n22 * self.y + m._n23 * self.z + m._n24 * self.w;
+		z = m._n31 * self.x + m._n32 * self.y + m._n33* self.z + m._n34 * self.w;
+		w = m._n41* self.x + m._n42* self.y + m._n43* self.z + m._n44 * self.w;
+
+		return vector4(x,y,z,w)

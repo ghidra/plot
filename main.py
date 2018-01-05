@@ -36,6 +36,7 @@ tk.title( "plot" )
 # Define command line argument interface
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-c', '--connect', action='store_true', default=False, help='connect to serial')
+parser.add_argument('-v', '--verbose', action='store_true', default=False, help='print gcode to console')
 args = parser.parse_args()
 
 #---------------------------------------------
@@ -153,9 +154,9 @@ draw(_artist)
 grblPlotting = True #this makes it so we can turn off the while loop basically. otherwise it hangs the prompt
 
 class gcodeThread(threading.Thread):
-	def __init__( self, serial_address, connect ):
+	def __init__( self, serial_address, connect, verbose ):
 		threading.Thread.__init__(self)
-		self.grbl = grbl(self,serial_address,connect)
+		self.grbl = grbl(self,serial_address,connect,verbose=verbose)
 		self._stop_event = threading.Event()
 
 	def run(self):
@@ -176,7 +177,7 @@ def gcode( g ):
 
 			g.line(ns,configure_data['plotter_feedrate'])
 
-_gcodeThread = gcodeThread(serial_address,args.connect)
+_gcodeThread = gcodeThread(serial_address,args.connect,args.verbose)
 threads.append(_gcodeThread)
 
 #-------------------------------------------------------------
