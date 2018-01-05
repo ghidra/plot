@@ -5,6 +5,7 @@ os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 from artist import artist
 from matrix import *
 from vector import *
+from segment import segment
 
 class artist3(artist):
 	def __init__(self,dimensions,skateheight,fov=None,near=None,far=None):
@@ -26,16 +27,23 @@ class artist3(artist):
 		self.ratio	= dimensions.x/dimensions.y
 		
 		self.ttm = matrix4()
-		self.trm = matrix4()
+		# self.trm = matrix4()
 		self.rnm = matrix4()
 		
 		self.pm	= matrix4()#projection matrix
 		self.vm	= matrix4()#view matrix
 		self.rm	= matrix4()
+
+		#default outward translation
+		self.rnm = self.ttm.translate_out(-2.0) #.rotate_y(45.0)
+		# self.rnm.transpose()
 		
 		self.frustum = self.make_frustum();
 
 		self.assets = []
+
+		self.sequential = False
+		self.flashed = False #after sending this to plotter, stop sending it
 	
 	def make_frustum(self):
 		cosf = math.cos(math.sqrt(self.rfov))
@@ -51,7 +59,7 @@ class artist3(artist):
 		self.far = -self.far
 		
 		self.pm = matrix4( vector4(cosf,0,0,0),vector4(0,-cosf,0,0),vector4(0,0,sinf/nf,-(math.sin(1)/nf)*self.near),vector4(0,0,sinf,0) )
-		self.vm = matrix4( vector4(99,0,0,self.dimensions.x),vector4(0,99,0,self.dimensions.y) ) # i dobnt know what the 99 is
+		self.vm = matrix4( vector4(self.dimensions.x,0,0,self.dimensions.x*0.5),vector4(0,self.dimensions.y,0,self.dimensions.y*0.5) ) # i dobnt know what the 99 is
 		self.rm = self.pm.multiply(self.vm)
 
 	def load_asset(self,asset):
@@ -89,7 +97,7 @@ class artist3(artist):
 		#we need to move the assets to render space
 
 		# render = []
-
+		self.segment = []
 		#for each asset, lets start transforming points
 		for asset in self.assets:
 			
@@ -98,7 +106,7 @@ class artist3(artist):
 			newttm = newttm.multiply( self.rm )
 
 			#store out newly transformed points
-			new_points = []
+			points = []
 			#transform each point
 			# print(self.rnm.printable())
 			# print(asset["rnm"].printable())
@@ -112,6 +120,16 @@ class artist3(artist):
 				uy = point.y / point.w;
 				uz = point.z / point.w; #z is kind of useless in this case
 
-				new_points.append( vector3(ux,uy,uz) )
+				points.append( vector3(ux,uy,0.0) )
 
-				#print("x:"+str(ux)+", y:"+str(uy))
+				# print("x:"+str(ux)+", y:"+str(uy))
+
+			for seg in asset["segments"]:
+				for i in range( len(seg) -1 ):
+					# print( points[seg[i]].printable() )
+					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )
+
+		# print(self.segment[0].p1.printable())
+		# print( "render done" )
+				
+

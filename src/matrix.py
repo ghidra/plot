@@ -65,48 +65,48 @@ class matrix4(matrix3):
 	# 		return vector2(self.x-v.x,self.y-v.y)
 	# def __mul__(self,m):
 	def multiply(self,mat):
-		a = mat._n11*self._n11+mat._n12*self._n21+mat._n13*self._n31+mat._n14*self._n41;
-		b = mat._n11*self._n12+mat._n12*self._n22+mat._n13*self._n32+mat._n14*self._n42;
-		c = mat._n11*self._n13+mat._n12*self._n23+mat._n13*self._n33+mat._n14*self._n43;
-		d = mat._n11*self._n14+mat._n12*self._n24+mat._n13*self._n34+mat._n14*self._n44;
+		a = mat._n11*self._n11+mat._n12*self._n21+mat._n13*self._n31+mat._n14*self._n41
+		b = mat._n11*self._n12+mat._n12*self._n22+mat._n13*self._n32+mat._n14*self._n42
+		c = mat._n11*self._n13+mat._n12*self._n23+mat._n13*self._n33+mat._n14*self._n43
+		d = mat._n11*self._n14+mat._n12*self._n24+mat._n13*self._n34+mat._n14*self._n44
 	
-		e = mat._n21*self._n11+mat._n22*self._n21+mat._n23*self._n31+mat._n24*self._n41;
-		f = mat._n21*self._n12+mat._n22*self._n22+mat._n23*self._n32+mat._n24*self._n42;
-		g = mat._n21*self._n13+mat._n22*self._n23+mat._n23*self._n33+mat._n24*self._n43;
-		h = mat._n21*self._n14+mat._n22*self._n24+mat._n23*self._n34+mat._n24*self._n44;
+		e = mat._n21*self._n11+mat._n22*self._n21+mat._n23*self._n31+mat._n24*self._n41
+		f = mat._n21*self._n12+mat._n22*self._n22+mat._n23*self._n32+mat._n24*self._n42
+		g = mat._n21*self._n13+mat._n22*self._n23+mat._n23*self._n33+mat._n24*self._n43
+		h = mat._n21*self._n14+mat._n22*self._n24+mat._n23*self._n34+mat._n24*self._n44
 	
-		i = mat._n31*self._n11+mat._n32*self._n21+mat._n33*self._n31+mat._n34*self._n41;
-		j = mat._n31*self._n12+mat._n32*self._n22+mat._n33*self._n32+mat._n34*self._n42;
-		k = mat._n31*self._n13+mat._n32*self._n23+mat._n33*self._n33+mat._n34*self._n43;
-		l = mat._n31*self._n14+mat._n32*self._n24+mat._n33*self._n34+mat._n34*self._n44;
+		i = mat._n31*self._n11+mat._n32*self._n21+mat._n33*self._n31+mat._n34*self._n41
+		j = mat._n31*self._n12+mat._n32*self._n22+mat._n33*self._n32+mat._n34*self._n42
+		k = mat._n31*self._n13+mat._n32*self._n23+mat._n33*self._n33+mat._n34*self._n43
+		l = mat._n31*self._n14+mat._n32*self._n24+mat._n33*self._n34+mat._n34*self._n44
 	
-		m = mat._n41*self._n11+mat._n42*self._n21+mat._n43*self._n31+mat._n44*self._n41;
-		n = mat._n41*self._n12+mat._n42*self._n22+mat._n43*self._n32+mat._n44*self._n42;
-		o = mat._n41*self._n13+mat._n42*self._n23+mat._n43*self._n33+mat._n44*self._n43;
-		p = mat._n41*self._n14+mat._n42*self._n24+mat._n43*self._n34+mat._n44*self._n44;
+		m = mat._n41*self._n11+mat._n42*self._n21+mat._n43*self._n31+mat._n44*self._n41
+		n = mat._n41*self._n12+mat._n42*self._n22+mat._n43*self._n32+mat._n44*self._n42
+		o = mat._n41*self._n13+mat._n42*self._n23+mat._n43*self._n33+mat._n44*self._n43
+		p = mat._n41*self._n14+mat._n42*self._n24+mat._n43*self._n34+mat._n44*self._n44
 
 		return matrix4(vector4(a,b,c,d),vector4(e,f,g,h),vector4(i,j,k,l),vector4(m,n,o,p))
 
 	def transpose(self):
-		a = self._n11;
-		b = self._n21;
-		c = self._n31;
-		d = -self._n14;
+		a = self._n11
+		b = self._n21
+		c = self._n31
+		d = -self._n14
 		
-		e = self._n12;
-		f = self._n22;
-		g = self._n32;
-		h = -self._n24;
+		e = self._n12
+		f = self._n22
+		g = self._n32
+		h = -self._n24
 		
-		i = self._n13;
-		j = self._n23;
-		k = self._n33;
-		l = -self._n34;
+		i = self._n13
+		j = self._n23
+		k = self._n33
+		l = -self._n34
 		
-		m = self._n14;
-		n = self._n24;
-		o = self._n34;
-		p = self._n44;
+		m = self._n14
+		n = self._n24
+		o = self._n34
+		p = self._n44
 
 		return matrix4(vector4(a,b,c,d),vector4(e,f,g,h),vector4(i,j,k,l),vector4(m,n,o,p))
 
@@ -114,23 +114,29 @@ class matrix4(matrix3):
 		return self.multiply( matrix4(1, 0, 0, v.x, 0, 1, 0, v.y, 0, 0, 1, v.z, 0, 0, 0, 1 ) )
 
 	def translate_side(self,d):
-		self._n14+=self._n11*d;
-		self._n24+=self._n12*d;
-		self._n34+=self._n13*d;
+		self._n14+=self._n11*d
+		self._n24+=self._n12*d
+		self._n34+=self._n13*d
+
+		return self
 
 	def translate_up(self,d):
-		self._n14+=self._n21*d;
-		self._n24+=self._n22*d;
-		self._n34+=self._n23*d;
+		self._n14+=self._n21*d
+		self._n24+=self._n22*d
+		self._n34+=self._n23*d
+
+		return self
 
 	def translate_out(self,d):
-		self._n14+=self._n31*d;
-		self._n24+=self._n32*d;
-		self._n34+=self._n33*d;
+		self._n14+=self._n31*d
+		self._n24+=self._n32*d
+		self._n34+=self._n33*d
+
+		return self
 
 	#this is a helper function
 	def clamp_angle(self,a):
-		d = d % 360
+		d = a % 360
 		if d < 0:
 			d += 360
 		return d

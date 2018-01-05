@@ -47,6 +47,9 @@ class vector2:
 	def dot(self,v):
 		return ( self.x * v.x + self.y * v.y )
 
+	def printable(self):
+		return "x:"+str(self.x)+", y:"+str(self.y)
+
 	#-------STATIC
 	def length(v):
 		return math.sqrt( (v.x*v.x) + (v.y*v.y) )
@@ -109,6 +112,9 @@ class vector3(vector2):
 	def cross(self,v):
 		return(	(self.y * v.z) - (self.z * v.y) , (self.z * v.x) - (self.x * v.z) , (self.x * v.y) - (self.y * v.x))
 
+	def printable(self):
+		return super().printable() +" ,z:"+str(self.z)
+
 	#MATRIC METHODS
 
 	def mult_matrix3(self,m):    
@@ -150,6 +156,9 @@ class vector4(vector3):
 			self.w = 0.0
 		else:
 			self.w = w
+
+	def printable(self):
+		return super().printable() + " ,w:"+str(self.w)
 
 	def mult_matrix4(self,m):
 		x = m._n11 * self.x + m._n12 * self.y + m._n13 * self.z + m._n14 * self.w;
