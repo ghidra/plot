@@ -35,8 +35,8 @@ class artist3(artist):
 		self.rm	= matrix4()
 
 		#default outward translation
-		self.rnm = self.ttm.translate_out(-2.0) #.rotate_y(45.0)
-		# self.rnm.transpose()
+		self.rnm = self.ttm.rotate_x(0.0).rotate_y(33.0).translate( vector3(0.0,0.0,-2.0) )
+		self.rnm.transpose()
 		
 		self.frustum = self.make_frustum();
 

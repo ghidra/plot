@@ -111,7 +111,7 @@ class matrix4(matrix3):
 		return matrix4(vector4(a,b,c,d),vector4(e,f,g,h),vector4(i,j,k,l),vector4(m,n,o,p))
 
 	def translate(self,v):
-		return self.multiply( matrix4(1, 0, 0, v.x, 0, 1, 0, v.y, 0, 0, 1, v.z, 0, 0, 0, 1 ) )
+		return self.multiply( matrix4( vector4(1, 0, 0, v.x), vector4(0, 1, 0, v.y), vector4(0, 0, 1, v.z) ) )
 
 	def translate_side(self,d):
 		self._n14+=self._n11*d
@@ -139,7 +139,8 @@ class matrix4(matrix3):
 		d = a % 360
 		if d < 0:
 			d += 360
-		return d
+
+		return d*(3.14159265359/180.0)
 
 	def rotate_x(self,d):
 		d = self.clamp_angle(d)
@@ -147,7 +148,7 @@ class matrix4(matrix3):
 		pitchsin = math.sin(d)
 		pitchcos = math.cos(d)
 
-		return self.multiply( matrix4( 1, 0, 0, 0, 0, pitchcos, -pitchsin, 0, 0, pitchsin, pitchcos, 0, 0, 0, 0, 1 ) )
+		return self.multiply( matrix4( vector4(1, 0, 0, 0), vector4(0, pitchcos, -pitchsin, 0), vector4(0, pitchsin, pitchcos, 0) ) )
 	
 	def rotate_y(self,d):
 		d = self.clamp_angle(d)
@@ -155,7 +156,7 @@ class matrix4(matrix3):
 		yawsin = math.sin(d)
 		yawcos = math.cos(d)
 
-		return self.multiply( matrix4( yawcos, 0, yawsin, 0, 0, 1, 0, 0, -yawsin, 0, yawcos, 0, 0, 0, 0, 1 ) )
+		return self.multiply( matrix4( vector4(yawcos, 0, yawsin, 0), vector4(0, 1, 0, 0), vector4(-yawsin, 0, yawcos, 0) ) )
 
 	def rotate_z(self,d):
 		d = self.clamp_angle(d)
@@ -163,7 +164,7 @@ class matrix4(matrix3):
 		rollsin = math.sin(d)
 		rollcos = math.cos(d)
 
-		return self.multiply( matrix4( rollcos, -(rollsin),	0, 0, rollsin, rollcos,	0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ) )
+		return self.multiply( matrix4( vector4(rollcos, -(rollsin),	0, 0), vector4(rollsin, rollcos,	0, 0) ) )
 
 	def printable(self):
 		return str(self._n11)+", "+str(self._n12)+", "+str(self._n13)+", "+str(self._n14)+", "+str(self._n21)+", "+str(self._n22)+", "+str(self._n23)+", "+str(self._n24)+", "+str(self._n31)+", "+str(self._n32)+", "+str(self._n33)+", "+str(self._n34)+", "+str(self._n41)+", "+str(self._n42)+", "+str(self._n43)+", "+str(self._n44)
