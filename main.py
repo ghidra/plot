@@ -24,7 +24,7 @@ from grbl import grbl
 
 # import a_01_helloWorld
 # import a_02
-import a3_01_cube
+import a3_02_dodecahedron
 
 #---------------------------------------------
 
@@ -144,7 +144,7 @@ def draw( artist ):
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
 
-_artist = a3_01_cube.a3_01_cube( vector2(width,height), configure_data["plotter_skate_height"] )
+_artist = a3_02_dodecahedron.a3_02_dodecahedron( vector2(width,height), configure_data["plotter_skate_height"] )
 draw(_artist)
 
 #-------------------------------------------------------------
