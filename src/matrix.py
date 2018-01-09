@@ -134,6 +134,12 @@ class matrix4(matrix3):
 
 		return self
 
+	def scale(self,s):
+		return self.multiply( matrix4( vector4(s.x, 0, 0, 0), vector4(0, s.y, 0, 0), vector4(0, 0, s.z, 0) ) )
+
+	def scale_uniform(self,s):
+		return self.multiply( matrix4( vector4(s, 0, 0, 0), vector4(0, s, 0, 0), vector4(0, 0, s, 0) ) )
+
 	#this is a helper function
 	def clamp_angle(self,a):
 		d = a % 360

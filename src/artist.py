@@ -42,6 +42,15 @@ class artist:
 		self.skating = False
 		seg = segment( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
 		return seg
+	def skate_to_first(self,from_position=None):
+		if from_position is None:
+			from_position = self.turle_last
+		position = self.segment[0].p1
+		self.skate_to(position,from_position)
+	def skate_to(self,position,from_position):
+		self.segment.insert(0, self.drop( position ) ) #drop to position first.. then its prepended to skate
+		self.segment.insert(0, self.skate(from_position, position) ) #skate to position
+
 	def origin(self):
 		return vector2(0.0,self.dimensions.y)
 

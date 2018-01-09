@@ -56,9 +56,10 @@ class a_02(artist):
 					self.segment = [ segment(vector3(),vector3()) ]
 			else:
 				if self.skating:
-					point = self.segment[0].p1
-					self.segment.insert(0, self.drop( point ) ) #drop to position first.. then its prepended to skate
-					self.segment.insert(0, self.skate(self.turle_last, point) ) #skate to position
+					self.skate_to_first()
+					# point = self.segment[0].p1
+					# self.segment.insert(0, self.drop( point ) ) #drop to position first.. then its prepended to skate
+					# self.segment.insert(0, self.skate(self.turle_last, point) ) #skate to position
 		else:
 			self.segment = [ segment(vector3(),vector3()) ]
 

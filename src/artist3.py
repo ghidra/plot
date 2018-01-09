@@ -102,7 +102,8 @@ class artist3(artist):
 		for asset in self.assets:
 			
 			newttm = matrix4()
-			newttm = newttm.multiply( self.rnm ).multiply( asset["rnm"] )
+			newttm = newttm.multiply( asset["rnm"] ).multiply( self.rnm )
+			#newttm = newttm.multiply( self.rnm ).multiply( asset["rnm"] )
 			newttm = newttm.multiply( self.rm )
 
 			#store out newly transformed points
@@ -129,27 +130,42 @@ class artist3(artist):
 					# print( points[seg[i]].printable() )
 					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )
 
+			#self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
+			#set the turtles position
+
 		# print(self.segment[0].p1.printable())
 		# print( "render done" )
 
 	#override method
 	def dispatch(self):
 
+		self.update_finish()
+
 		if self.ready:
 
+			#if we are set to sequential. That means we want to render every frame
 			if self.sequential:
+				self.flashed = True
 				self.segment=[ segment(vector3(),vector3()) ] #clear out the segment buffer
 				self.render() #render again
+				self.skate_to_first()#skate to beginning
+				self.turtle_last = self.segment[len(self.segment)-1].p2
+				self.segment.append( self.lift( self.turtle_last ) ) #lift the pen when its done
 
-			if self.flashed:
-				self.segment=[ segment(vector3(),vector3()) ]
+			else:
+				#if we are only meant to flash... thenjust do it once
+				if self.flashed:
+					self.segment=[ segment(vector3(),vector3()) ]
+				else:
+					self.skate_to_first()#skate to beginning
+					self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
 
-			self.flashed = True
+				self.flashed = True
 
 			return self.segment
 
 		else:
-			
+
 			return self.waiting()
 				
 
