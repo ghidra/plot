@@ -25,9 +25,8 @@ class a_02(artist):
 		self.noisemag2 = 0.01
 		self.noisescale2 = 0.005
 
-		self.wait = 2 #i need to wait 2 ticks before I start drawing... cause those first 2 are bogus
-		self.waitcount = 0
-		self.ready = False # i want to wait before recording
+		self.wait=2
+		self.ready=False
 
 		self.turtle = self.getcircle() #go ahead and place this
 	
@@ -46,7 +45,7 @@ class a_02(artist):
 			direction = cleantarget-self.turtle
 
 			self.advect( direction ) 
-			self.update_finish()
+			#self.update_finish()
 
 			if self.turtle.y > self.center.y+visible or self.turtle.y < self.center.y-visible:
 				if not self.skating:
@@ -65,15 +64,7 @@ class a_02(artist):
 
 		#--------------------------
 
-		if self.ready:
-			return self.segment
-		else:
-			if self.waitcount > self.wait:
-				self.ready = True
-				self.turle_last = vector2(0.0,self.dimensions.y)
-				return [ self.lift( self.turle_last ) ]
-			self.waitcount+=1
-			return [ segment(vector3(),vector3()) ]
+		return self.dispatch()
 
 	def getcircle(self):
 		rate = self.elapse*self.speed

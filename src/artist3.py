@@ -131,5 +131,25 @@ class artist3(artist):
 
 		# print(self.segment[0].p1.printable())
 		# print( "render done" )
+
+	#override method
+	def dispatch(self):
+
+		if self.ready:
+
+			if self.sequential:
+				self.segment=[ segment(vector3(),vector3()) ] #clear out the segment buffer
+				self.render() #render again
+
+			if self.flashed:
+				self.segment=[ segment(vector3(),vector3()) ]
+
+			self.flashed = True
+
+			return self.segment
+
+		else:
+			
+			return self.waiting()
 				
 

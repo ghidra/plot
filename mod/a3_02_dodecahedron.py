@@ -16,16 +16,4 @@ class a3_02_dodecahedron(artist3):
 	
 	def update(self):
 		super().update()
-
-		
-		if self.sequential:
-			self.segment=[ segment(vector3(),vector3()) ]
-			self.render()
-
-		if self.flashed:
-			self.segment=[ segment(vector3(),vector3()) ]
-
-		self.flashed = True
-
-
-		return self.segment
+		return self.dispatch()
