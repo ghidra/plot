@@ -42,7 +42,6 @@ class artist3(artist):
 
 		self.assets = []
 
-		self.sequential = False
 		self.flashed = False #after sending this to plotter, stop sending it
 	
 	def make_frustum(self):
@@ -98,6 +97,8 @@ class artist3(artist):
 
 		# render = []
 		self.segment = []
+		counter=0
+		segment_insert_index=0 #if we have multiple assets, we need to insert skates at the right index
 		#for each asset, lets start transforming points
 		for asset in self.assets:
 			
@@ -124,13 +125,23 @@ class artist3(artist):
 				points.append( vector3(ux,uy,0.0) )
 
 				# print("x:"+str(ux)+", y:"+str(uy))
+			
 
 			for seg in asset["segments"]:
 				for i in range( len(seg) -1 ):
 					# print( points[seg[i]].printable() )
 					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )
+			
+			#skate to new position, if we are not the first asset being drawn
+			if counter>0:
+				self.skate_to(self.segment[segment_insert_index].p1,self.turtle_last,segment_insert_index)
 
-			#self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
+			if counter<len(self.assets)-1:
+				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
+				self.turtle_last = vector2(self.segment[len(self.segment)-1].p2.x,self.segment[len(self.segment)-1].p2.y)
+			
+			counter+=1
+			segment_insert_index = len(self.segment)
 			#set the turtles position
 
 		# print(self.segment[0].p1.printable())
@@ -142,25 +153,14 @@ class artist3(artist):
 		self.update_finish()
 
 		if self.ready:
-
-			#if we are set to sequential. That means we want to render every frame
-			if self.sequential:
-				self.flashed = True
-				self.segment=[ segment(vector3(),vector3()) ] #clear out the segment buffer
-				self.render() #render again
-				self.skate_to_first()#skate to beginning
-				self.turtle_last = self.segment[len(self.segment)-1].p2
-				self.segment.append( self.lift( self.turtle_last ) ) #lift the pen when its done
-
+			#if we are only meant to flash... thenjust do it once
+			if self.flashed:
+				self.segment=[ segment(vector3(),vector3()) ]
 			else:
-				#if we are only meant to flash... thenjust do it once
-				if self.flashed:
-					self.segment=[ segment(vector3(),vector3()) ]
-				else:
-					self.skate_to_first()#skate to beginning
-					self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
+				self.skate_to_first()#skate to beginning
+				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
 
-				self.flashed = True
+			self.flashed = True
 
 			return self.segment
 

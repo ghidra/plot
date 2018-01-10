@@ -44,12 +44,14 @@ class artist:
 		return seg
 	def skate_to_first(self,from_position=None):
 		if from_position is None:
-			from_position = self.turle_last
+			from_position = self.turtle_last
 		position = self.segment[0].p1
 		self.skate_to(position,from_position)
-	def skate_to(self,position,from_position):
-		self.segment.insert(0, self.drop( position ) ) #drop to position first.. then its prepended to skate
-		self.segment.insert(0, self.skate(from_position, position) ) #skate to position
+	def skate_to(self,position,from_position,index=None):
+		if index is None:
+			index=0
+		self.segment.insert(index, self.drop( position ) ) #drop to position first.. then its prepended to skate
+		self.segment.insert(index, self.skate(from_position, position) ) #skate to position
 
 	def origin(self):
 		return vector2(0.0,self.dimensions.y)
@@ -67,8 +69,8 @@ class artist:
 	def waiting(self):
 		if self.waitcount > self.wait:
 			self.ready = True
-			self.turle_last = self.origin()
-			return [ self.lift( self.turle_last ) ]
+			self.turtle_last = self.origin()
+			return [ self.lift( self.turtle_last ) ]
 		self.waitcount+=1
 		return [ segment(vector3(),vector3()) ]
 
@@ -78,3 +80,8 @@ class artist:
 		newpos = self.turtle + v
 		self.segment = [ segment( vector3(self.turtle.x,self.turtle.y,0.0), vector3(newpos.x,newpos.y,0.0) ) ]
 		self.turtle = newpos
+
+	#default configure method
+	#event is because this call comes from tkinter callback
+	def configure(self,tk):
+		print("nothing to configure")

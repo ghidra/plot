@@ -142,11 +142,11 @@ class matrix4(matrix3):
 
 	#this is a helper function
 	def clamp_angle(self,a):
-		d = a % 360
-		if d < 0:
-			d += 360
+		# d = a % 360
+		# if d < 0:
+		# 	d += 360
 
-		return d*(3.14159265359/180.0)
+		return a*(3.14159265359/180.0)
 
 	def rotate_x(self,d):
 		d = self.clamp_angle(d)

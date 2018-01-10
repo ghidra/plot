@@ -9,43 +9,32 @@ import platform
 if(platform.system() == "Windows"):
 	sys.path.append(os.getcwd()+"\\src")
 	sys.path.append(os.getcwd()+"\\mod")
-	# sys.path.append(os.getcwd()+"\\mod\\assets")
 else:
 	sys.path.append(os.getcwd()+"/src")
 	sys.path.append(os.getcwd()+"/mod")
-	# sys.path.append(os.getcwd()+"/mod/assets")
-
 from preferences import preferences
-
 from vector import *
 from segment import segment
-#import n
 from grbl import grbl
-
 # import a_01_helloWorld
 from a_02 import a_02
 from a3_02_dodecahedron import a3_02_dodecahedron
 
 #---------------------------------------------
-
 tk = Tk()
 tk.title( "plot" )
-
 #---------------------------------------------
-
 # Define command line argument interface
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-c', '--connect', action='store_true', default=False, help='connect to serial')
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help='print gcode to console')
+parser.add_argument('-d', '--debug', action='store_true', default=False, help='skip the configure step, go strait to artist')
 args = parser.parse_args()
-
 #---------------------------------------------
-
 #configure
 config_file = 'config.json'
 configure_file = open(config_file,'r')
 configure_data = json.loads(configure_file.read())
-#print( configure_data["plotter_serial"] )
 
 def call_preferences(event):
 	pref_window = preferences(tk,file=config_file)
@@ -59,30 +48,22 @@ afterSpeed = int(configure_data["artist_delay"] * 1000) #convert to milliseconds
 serial_address = configure_data["plotter_serial"] #plotter connection
 maxArtistSegmentBufferSize = configure_data["artist_max_buffer_size"]#this will stop automatic drawing at a certain point if need be
 
-
-
 #---------------------------------------------
-
 threads = []
 segmentBuffer = []
 artistSegmentBuffer = []
-
+artistConfigured = args.debug
 #---------------------------------------------
-
 canvas = Canvas(tk, width = width, height = height)
 canvas.pack(fill=BOTH, expand=1)
-canvas.bind_all("<p>", call_preferences)
-
 #-------------------------------------------------------------
 #  on resize
 #------------------------------------------------------------
-
 # def configure(event):
 # 	global width, height
 # 	width, height = event.width, event.height
 
 # canvas.bind("<Configure>", configure)
-
 #-------------------------------------------------------------
 #  manual drawing
 #-------------------------------------------------------------
@@ -96,17 +77,15 @@ def mouseRelease(event):
 def mousePlot(event):
 	global mousePlotting, mouseStartPos
 	if not mousePlotting:
-		#lift pen
-		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],0.0), vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), True ) )
-		#get to point to drop pen
-		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), vector3(event.x, event.y,configure_data["plotter_skate_height"]), True ) )
-		#drop pen
-		segmentBuffer.append( segment( vector3(event.x, event.y,configure_data["plotter_skate_height"]), vector3(event.x, event.y,0.0) ) )
+		
+		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],0.0), vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), True ) )#lift pen
+		segmentBuffer.append( segment( vector3(mouseStartPos[0],mouseStartPos[1],configure_data["plotter_skate_height"]), vector3(event.x, event.y,configure_data["plotter_skate_height"]), True ) )#get to point to drop pen
+		segmentBuffer.append( segment( vector3(event.x, event.y,configure_data["plotter_skate_height"]), vector3(event.x, event.y,0.0) ) )#drop pen
 		
 		mouseStartPos = [ event.x, event.y ]
 		mousePlotting = True
 	else:
-		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042")
+		canvas.create_line(mouseStartPos[0],mouseStartPos[1],event.x,event.y,fill="#476042",tags="manual")
 		seg = segment( vector3(mouseStartPos[0],mouseStartPos[1],0.0),vector3(event.x,event.y,0.0) )
 		segmentBuffer.append(seg)
 		mouseStartPos = [ event.x, event.y ]
@@ -114,7 +93,6 @@ def mousePlot(event):
 
 canvas.bind( "<B1-Motion>", mousePlot )
 canvas.bind( "<ButtonRelease-1>", mouseRelease )
-
 #-------------------------------------------------------------
 #  automatic drawing
 #------------------------------------------------------------
@@ -129,20 +107,29 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 # 		print( "start drawing thread" )
 # 		draw( self.artist )
 
-def draw( artist ):
+# _drawThread = drawThread(width, height)
+# threads.append(_drawThread)
 
+def draw( artist ):
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
+		
+		# 	print("clearing")
+		# 	print(len(canvas.gettags("artist")))
+		#print(canvas.find_withtag("artist"))
+		#print("---------------")
+			#canvas.delete("artist")
+
 		seg = artist.update()
 		if seg[0].valid:
 			artistSegmentBuffer.extend(seg)
 			for s in seg:
 				if s.draw:
-					canvas.create_line(s.p1.x,s.p1.y,s.p2.x,s.p2.y,fill=s.color)
+					canvas.create_line(s.p1.x,s.p1.y,s.p2.x,s.p2.y,fill=s.color, tags="artist")
+					#canvas.itemconfig(item, tags=("artist"))
 
 	tk.after(afterSpeed,draw,artist)
 
-# _drawThread = drawThread(width, height)
-# threads.append(_drawThread)
+
 
 #_artist = a_02( vector2(width,height), configure_data["plotter_skate_height"] )
 _artist = a3_02_dodecahedron( vector2(width,height), configure_data["plotter_skate_height"] )
@@ -151,7 +138,6 @@ draw(_artist)
 #-------------------------------------------------------------
 #  plotter
 #------------------------------------------------------------
-
 grblPlotting = True #this makes it so we can turn off the while loop basically. otherwise it hangs the prompt
 
 class gcodeThread(threading.Thread):
@@ -180,25 +166,26 @@ def gcode( g ):
 
 _gcodeThread = gcodeThread(serial_address,args.connect,args.verbose)
 threads.append(_gcodeThread)
-
 #-------------------------------------------------------------
 #  on close
 #------------------------------------------------------------
-
 def close():
 	global grblPlotting, threads
 	grblPlotting = False
 	for t in threads:
 		t.join()
-
 	tk.destroy()
-
 tk.protocol("WM_DELETE_WINDOW", close)
-
-
-
+#-------------------------------------------------------------
+#  button bindings
+#------------------------------------------------------------
+canvas.bind_all( "<p>", call_preferences )
+canvas.bind_all( "<a>", lambda e:_artist.configure(tk) )
+#canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )
+#-------------------------------------------------------------
+#  main loop
+#------------------------------------------------------------
 mainloop()
-
 #-------------------------------------------------------------
 #https://www.python-course.eu/tkinter_canvas.php
 #https://stackoverflow.com/questions/459083/how-do-you-run-your-own-code-alongside-tkinters-event-loop
