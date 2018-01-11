@@ -23,6 +23,8 @@ class artist:
 		self.wait = 0.0 #i need to wait 2 ticks before I start drawing... cause those first 2 are bogus
 		self.waitcount = 0.001
 		self.ready = False
+
+		self.canvas = None
 		
 	def update(self):
 		self.tick = (time.time()-self.last)
@@ -42,14 +44,17 @@ class artist:
 		self.skating = False
 		seg = segment( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
 		return seg
+
 	def skate_to_first(self,from_position=None):
 		if from_position is None:
 			from_position = self.turtle_last
 		position = self.segment[0].p1
 		self.skate_to(position,from_position)
-	def skate_to(self,position,from_position,index=None):
+	def skate_to(self,position,from_position=None,index=None):
 		if index is None:
 			index=0
+		if from_position is None:
+			from_position = self.turtle_last
 		self.segment.insert(index, self.drop( position ) ) #drop to position first.. then its prepended to skate
 		self.segment.insert(index, self.skate(from_position, position) ) #skate to position
 
@@ -68,9 +73,9 @@ class artist:
 	#this method actually does the initial lift of the pen from origin
 	def waiting(self):
 		if self.waitcount > self.wait:
-			self.ready = True
 			self.turtle_last = self.origin()
-			return [ self.lift( self.turtle_last ) ]
+			self.ready = True
+			#return [ self.lift( self.turtle_last ) ]
 		self.waitcount+=1
 		return [ segment(vector3(),vector3()) ]
 

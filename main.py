@@ -180,7 +180,7 @@ tk.protocol("WM_DELETE_WINDOW", close)
 #  button bindings
 #------------------------------------------------------------
 canvas.bind_all( "<p>", call_preferences )
-canvas.bind_all( "<a>", lambda e:_artist.configure(tk) )
+canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas) )
 #canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )
 #-------------------------------------------------------------
 #  main loop

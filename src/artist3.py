@@ -97,7 +97,7 @@ class artist3(artist):
 
 		# render = []
 		self.segment = []
-		counter=0
+		#counter=0
 		segment_insert_index=0 #if we have multiple assets, we need to insert skates at the right index
 		#for each asset, lets start transforming points
 		for asset in self.assets:
@@ -126,26 +126,17 @@ class artist3(artist):
 
 				# print("x:"+str(ux)+", y:"+str(uy))
 			
-
 			for seg in asset["segments"]:
-				for i in range( len(seg) -1 ):
-					# print( points[seg[i]].printable() )
-					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )
-			
-			#skate to new position, if we are not the first asset being drawn
-			if counter>0:
-				self.skate_to(self.segment[segment_insert_index].p1,self.turtle_last,segment_insert_index)
+				for i in range( len(seg)-1 ):
+					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )# print( points[seg[i]].printable() )
 
-			if counter<len(self.assets)-1:
-				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
+				#now for each curve, do the lifting and skating and dropping
+				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen from the last position of the last segment
+				self.skate_to(self.segment[segment_insert_index].p1,index=segment_insert_index)#insert the lifing skating and droping to the first position of the curve
+				#set data for next loop
 				self.turtle_last = vector2(self.segment[len(self.segment)-1].p2.x,self.segment[len(self.segment)-1].p2.y)
-			
-			counter+=1
-			segment_insert_index = len(self.segment)
-			#set the turtles position
+				segment_insert_index = len(self.segment)
 
-		# print(self.segment[0].p1.printable())
-		# print( "render done" )
 
 	#override method
 	def dispatch(self):
@@ -153,19 +144,17 @@ class artist3(artist):
 		self.update_finish()
 
 		if self.ready:
-			#if we are only meant to flash... thenjust do it once
 			if self.flashed:
 				self.segment=[ segment(vector3(),vector3()) ]
 			else:
-				self.skate_to_first()#skate to beginning
-				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen when its done
-
+			 	self.segment.insert( 0, self.lift( self.origin() ) ) #lift the pen off origin
 			self.flashed = True
-
 			return self.segment
-
 		else:
-
 			return self.waiting()
+
+	def update(self):
+		super().update()
+		return self.dispatch()
 				
 

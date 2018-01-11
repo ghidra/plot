@@ -10,9 +10,7 @@ class a3_02_dodecahedron(artist3):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 
-		#self.sequential = True
-		self.copies = 4
-		#self.copy_counter = 0
+		self.copies = 22
 
 		self.rnm = matrix4()
 		self.rnm = self.rnm.translate( vector3(0.0,0.0,-2.0) )
@@ -22,27 +20,30 @@ class a3_02_dodecahedron(artist3):
 		#now duplicate the asset a bunch
 		for i in range(self.copies-1):
 			self.assets.append(dict(self.assets[0]))
-			#make the transform modifications now
-			self.assets[i+1]["rnm"] = self.assets[i+1]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(i*4.0)#.rotate_y(i*2.0)
+		
+		self.setup({"rx":4.0,"ry":4.0,"rz":4.0})
 		
 		self.render()
 	
-	def update(self):
-		super().update()
+	# def update(self):
+	# 	super().update()
+	# 	return self.dispatch()
+	def setup(self,payload):
+		for i in range(self.copies):
+			self.assets[i]["rnm"] = matrix4()
+			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*payload["rx"]).rotate_x(float(i+1)*payload["ry"]).rotate_x(float(i+1)*payload["rz"])#.rotate_y(i*2.0)
 
-		# if self.copy_counter <= self.copies:
-		# 	self.assets[0]["rnm"] = matrix4()
-		# 	self.assets[0]["rnm"] = self.assets[0]["rnm"].scale_uniform( 1.0-(self.copy_counter/self.copies) ).rotate_x(self.copy_counter*2.0).rotate_y(self.copy_counter*2.0)
-		# 	self.copy_counter += 1
-		# 	#self.assets[0]["rnm"] = self.assets[0]["rnm"].translate( vector3(0.0,self.copy_counter*0.01,0.0) )
-		# else:
-		# 	self.sequential = False
 
-		return self.dispatch()
+	def configure(self,tk,canvas):
+		self.canvas=canvas
+		c = configure_artist(tk,self.configure_callback)
 
-	def configure(self,tk):
-		c = configure_artist(tk)
-		print("update settings")
+
+	def configure_callback(self,payload):
+		self.canvas.delete("artist")
+		self.setup(payload)
+		self.render()
+		self.flashed=False
 
 
 #---------------------
@@ -52,14 +53,18 @@ from tkinter import *
 from tkhelpers import dialog
 
 class configure_artist(dialog):
-	def __init__(self,parent):
+	def __init__(self,parent,callback):
+
+		self.callback=callback
 
 		self.e = {} # these are the tkinter elements that are made
 		self.v = {} # these are the tkinter variables that are made
+		self.payload = {}
 
 		dialog.__init__(self, parent, "artist settings")
 
 	def body(self, master):
+
 
 		Label(master, text="rotation x:").grid(row=0)
 		self.v["rx"] = DoubleVar()
@@ -92,7 +97,8 @@ class configure_artist(dialog):
 		box.pack()
 
 	def apply(self):
-		# first = int(self.e1.get())
-		# second = int(self.e2.get())
-		print("lets try to apply these")
+		for v in self.v:
+			self.payload[v]=self.v[v].get()
+		self.callback(self.payload)
+
 		pass
