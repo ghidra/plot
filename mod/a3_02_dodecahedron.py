@@ -31,7 +31,7 @@ class a3_02_dodecahedron(artist3):
 	def setup(self,payload):
 		for i in range(self.copies):
 			self.assets[i]["rnm"] = matrix4()
-			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*payload["rx"]).rotate_x(float(i+1)*payload["ry"]).rotate_x(float(i+1)*payload["rz"])#.rotate_y(i*2.0)
+			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*payload["rx"]).rotate_y(float(i+1)*payload["ry"]).rotate_z(float(i+1)*payload["rz"])#.rotate_y(i*2.0)
 
 
 	def configure(self,tk,canvas):
@@ -69,19 +69,19 @@ class configure_artist(dialog):
 		Label(master, text="rotation x:").grid(row=0)
 		self.v["rx"] = DoubleVar()
 		self.v["rx"].set(0)
-		self.e["rx"] = Scale(master,variable = self.v["rx"],orient=HORIZONTAL, from_=0, to=360,resolution=0.1)
+		self.e["rx"] = Scale(master,variable = self.v["rx"],orient=HORIZONTAL, from_=0, to=10,resolution=0.01)
 		self.e["rx"].grid(row=0,column=1)
 
 		Label(master, text="rotation y:").grid(row=1)
 		self.v["ry"] = DoubleVar()
 		self.v["ry"].set(0)
-		self.e["ry"] = Scale(master,variable = self.v["ry"],orient=HORIZONTAL, from_=0, to=360,resolution=0.1)
+		self.e["ry"] = Scale(master,variable = self.v["ry"],orient=HORIZONTAL, from_=0, to=10,resolution=0.01)
 		self.e["ry"].grid(row=1,column=1)
 
 		Label(master, text="rotation z:").grid(row=2)
 		self.v["rz"] = DoubleVar()
 		self.v["rz"].set(0)
-		self.e["rz"] = Scale(master,variable = self.v["rz"],orient=HORIZONTAL, from_=0, to=360,resolution=0.1)
+		self.e["rz"] = Scale(master,variable = self.v["rz"],orient=HORIZONTAL, from_=0, to=10,resolution=0.01)
 		self.e["rz"].grid(row=2,column=1)
 
 	def buttonbox(self):
