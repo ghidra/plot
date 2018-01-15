@@ -56,6 +56,24 @@ artistConfigured = args.debug
 #---------------------------------------------
 canvas = Canvas(tk, width = width, height = height)
 canvas.pack(fill=BOTH, expand=1)
+
+#status = Text(tk,state='disabled', width=80, height=1, wrap='none')
+status_string = StringVar()
+status = Entry(canvas,textvariable=status_string, state=DISABLED)
+status.config(borderwidth=0,justify=CENTER,relief=FLAT)
+status_string.set('preview')
+
+canvas.create_window(0, 0, window=status,anchor=NW)
+#status.pack()
+
+#status.insert(INSERT,"preview")
+if artistConfigured:
+	status_string.set('plot')
+	#status.delete(1.0,END)
+	#status.insert(INSERT,"plot")
+
+#status.config(state=DISABLED)
+#status.config(state=NORMAL)
 #-------------------------------------------------------------
 #  on resize
 #------------------------------------------------------------
