@@ -154,10 +154,19 @@ _artist = a3_02_dodecahedron( vector2(width,height), configure_data["plotter_ska
 draw(_artist)
 
 #-------------------------------------------------------------
+# Start plotting
+#-------------------------------------------------------------
+def start_plotting(event):
+	global artistConfigured, status_string
+	if not artistConfigured:
+		print("done configuring start plotting")
+		artistConfigured = True
+		status_string.set('plot')
+#-------------------------------------------------------------
 #  plotter
 #------------------------------------------------------------
 grblPlotting = True #this makes it so we can turn off the while loop basically. otherwise it hangs the prompt
-
+segmentsPlotted=0
 class gcodeThread(threading.Thread):
 	def __init__( self, serial_address, connect, verbose ):
 		threading.Thread.__init__(self)
@@ -169,18 +178,21 @@ class gcodeThread(threading.Thread):
 
 
 def gcode( g ):
-	global grblPlotting, width, height, configure_data, plotter_dimensions
+	global grblPlotting, width, height, configure_data, plotter_dimensions, artistConfigured, segmentsPlotted #, status_string, _artist
 	# print("start streaming gcode in thread")
 	while grblPlotting:
-		if len(artistSegmentBuffer)>0:
-			seg = artistSegmentBuffer.pop(0)
-			#before we send this along, lets do some math on it, so that its the right length relative to the ploter
-			#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
-			np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
-			np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
-			ns = segment(np1,np2,seg.rapid)
+		if artistConfigured:
+			#status_string.set('plotting '+ str(_artist.segment_count) + ':' + str(segmentsPlotted) )
+			if len(artistSegmentBuffer)>0:
+				seg = artistSegmentBuffer.pop(0)
+				#before we send this along, lets do some math on it, so that its the right length relative to the ploter
+				#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
+				np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
+				np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
+				ns = segment(np1,np2,seg.rapid)
 
-			g.line(ns,configure_data['plotter_feedrate'])
+				g.line(ns,configure_data['plotter_feedrate'])
+				segmentsPlotted+=1
 
 _gcodeThread = gcodeThread(serial_address,args.connect,args.verbose)
 threads.append(_gcodeThread)
@@ -199,6 +211,7 @@ tk.protocol("WM_DELETE_WINDOW", close)
 #------------------------------------------------------------
 canvas.bind_all( "<p>", call_preferences )
 canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas) )
+canvas.bind_all( "<space>", start_plotting )
 #canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )
 #-------------------------------------------------------------
 #  main loop

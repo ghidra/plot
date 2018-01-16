@@ -24,7 +24,8 @@ class artist:
 		self.waitcount = 0.001
 		self.ready = False
 
-		self.canvas = None
+		self.canvas = None #this is for preview related code
+		self.segment_count=0#for counting how many segments we have generated
 		
 	def update(self):
 		self.tick = (time.time()-self.last)

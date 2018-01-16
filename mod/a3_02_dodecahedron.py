@@ -41,6 +41,7 @@ class a3_02_dodecahedron(artist3):
 
 	def configure_callback(self,payload):
 		self.canvas.delete("artist")
+		self.segment_count=0
 		self.setup(payload)
 		self.render()
 		self.flashed=False
