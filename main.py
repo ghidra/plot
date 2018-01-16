@@ -127,7 +127,7 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
-
+segmentsGenerated=0
 def draw( artist ):
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		
@@ -138,6 +138,7 @@ def draw( artist ):
 			#canvas.delete("artist")
 
 		seg = artist.update()
+		segmentsGenerated=_artist.segment_count
 		if seg[0].valid:
 			artistSegmentBuffer.extend(seg)
 			for s in seg:
@@ -178,11 +179,12 @@ class gcodeThread(threading.Thread):
 
 
 def gcode( g ):
-	global grblPlotting, width, height, configure_data, plotter_dimensions, artistConfigured, segmentsPlotted #, status_string, _artist
+	global grblPlotting, width, height, configure_data, plotter_dimensions, artistConfigured, segmentsPlotted, segmentsGenerated #, status_string, _artist
 	# print("start streaming gcode in thread")
 	while grblPlotting:
 		if artistConfigured:
-			#status_string.set('plotting '+ str(_artist.segment_count) + ':' + str(segmentsPlotted) )
+			#status_string.set('plotting '+ str(segmentsGenerated) + ':' + str(segmentsPlotted) )
+			#status_string.set('plotting ' + str(segmentsPlotted) )
 			if len(artistSegmentBuffer)>0:
 				seg = artistSegmentBuffer.pop(0)
 				#before we send this along, lets do some math on it, so that its the right length relative to the ploter

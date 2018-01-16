@@ -129,7 +129,8 @@ class artist3(artist):
 			for seg in asset["segments"]:
 				for i in range( len(seg)-1 ):
 					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )# print( points[seg[i]].printable() )
-
+					self.segment_count+=1
+					
 				#now for each curve, do the lifting and skating and dropping
 				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen from the last position of the last segment
 				self.skate_to(self.segment[segment_insert_index].p1,index=segment_insert_index)#insert the lifing skating and droping to the first position of the curve

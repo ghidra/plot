@@ -37,13 +37,16 @@ class artist:
 	def lift(self, position):
 		self.skating = True
 		seg = segment( vector3(position.x,position.y,0.0), vector3(position.x,position.y,self.skateheight ), True, False )
+		self.segment_count+=1
 		return seg
 	def skate(self,a,b):
 		seg = segment( vector3(a.x,a.y,self.skateheight), vector3(b.x, b.y,self.skateheight), True, False )
+		self.segment_count+=1
 		return seg
 	def drop(self, position) :
 		self.skating = False
 		seg = segment( vector3(position.x, position.y,self.skateheight), vector3(position.x, position.y,0.0), draw=False )
+		self.segment_count+=1
 		return seg
 
 	def skate_to_first(self,from_position=None):
@@ -85,6 +88,7 @@ class artist:
 	def advect(self,v):
 		newpos = self.turtle + v
 		self.segment = [ segment( vector3(self.turtle.x,self.turtle.y,0.0), vector3(newpos.x,newpos.y,0.0) ) ]
+		self.segment_count+=1
 		self.turtle = newpos
 
 	#default configure method
