@@ -13,6 +13,7 @@ else:
 	sys.path.append(os.getcwd()+"/src")
 	sys.path.append(os.getcwd()+"/mod")
 from preferences import preferences
+from nudge import nudge
 from vector import *
 from segment import segment
 from grbl import grbl
@@ -69,6 +70,12 @@ canvas.create_window(0, 0, window=status,anchor=NW)
 #status.insert(INSERT,"preview")
 if artistConfigured:
 	status_string.set('plot')
+
+def call_nudge(event):
+	if not artistConfigured:
+		nudge_window = nudge(tk)
+	else:
+		print("nudge can only be called when in preview mode")
 	#status.delete(1.0,END)
 	#status.insert(INSERT,"plot")
 
@@ -212,6 +219,7 @@ tk.protocol("WM_DELETE_WINDOW", close)
 #  button bindings
 #------------------------------------------------------------
 canvas.bind_all( "<p>", call_preferences )
+canvas.bind_all( "<n>", call_nudge )
 canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas) )
 canvas.bind_all( "<space>", start_plotting )
 #canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )

@@ -16,7 +16,7 @@ class popup():
 #-------------------------------
 
 class dialog(Toplevel):
-    def __init__(self,parent,title = None):
+    def __init__(self,parent,title = None,buttonBox =True):
         Toplevel.__init__(self, parent)
 
         self.transient(parent)
@@ -29,7 +29,8 @@ class dialog(Toplevel):
         body = Frame(self)
         self.initial_focus = self.body(body)
         body.pack(padx=5, pady=5)
-        self.buttonbox()
+        if buttonBox:
+            self.buttonbox()
         self.grab_set()
 
         if not self.initial_focus:
