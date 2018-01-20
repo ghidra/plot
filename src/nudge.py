@@ -7,10 +7,13 @@ from vector import vector3
 
 class nudge(dialog):
 
-    def __init__(self,parent,title = None):
+    def __init__(self,parent,callback,onclose,title = None):
 
         self.value_element = None # these are the tkinter elements that are made
         self.value_variable = StringVar() # these are the tkinter variables that are made
+
+        self.callback = callback
+        self.onclose = onclose
 
         dialog.__init__(self, parent, "nudge", False)
 
@@ -45,9 +48,13 @@ class nudge(dialog):
     def apply(self,direction):
         
         direction *= float(re.findall('\d+', self.value_variable.get() )[0])
-        print("nudge this"+direction.printable())
+        self.callback(direction)
+        #print("nudge this"+direction.printable())
         # first = int(self.value_variable.get())
         # second = int(self.e2.get())
         # print(first) 
         # print(second) # or something
-        pass
+
+    def cancel(self, event=None):
+        self.onclose()
+        dialog.cancel(self,event)

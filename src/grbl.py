@@ -1,5 +1,5 @@
 #	grbl streamer
-
+#https://makezine.com/2016/10/24/get-to-know-your-cnc-how-to-read-g-code/
 import serial #"python -m pip install pyserial"
 import threading
 import itertools #this is so I can know what type of vectors we are working with
@@ -24,6 +24,8 @@ class grbl:
 		if connected:
 			self.device = serial.Serial(self.address,self.baud)
 			self.device.write(bytes("\r\n\r\n", 'UTF-8'))
+
+		self.ready=False
 		
 		threading.Timer(2, self.flushOnWake).start()
 		#print("int gcode thread")
@@ -31,9 +33,10 @@ class grbl:
 	def flushOnWake(self):
 		if self.connected:
 			self.device.flushInput()
-		self.stream(self.mode)
+		self.resetMode()
 		self.stream(self.measurement)
 		self.thread.start()
+		self.ready=True
 
 	def stream(self,gcode):
 		block = gcode.strip()
@@ -52,6 +55,7 @@ class grbl:
 		if self.verbose:
 			print(block)
 
+	#this function is called from the main script, the tells the plotter to do a line
 	def line(self,segment,feedrate):
 		#if type(segment.p1).__name__ is 'vector3':
 
@@ -72,3 +76,15 @@ class grbl:
 		#this draws a line from a given segment
 		#print("make a line from p1: "+str(segment.p1.x)+","+str(segment.p1.y)+" p2: "+str(segment.p2.x)+","+str(segment.p2.y) )
 
+	def setIncremental(self):
+		self.stream('G91')
+	def setAbsolute(self):
+		self.stream('G90')
+	def resetMode(self):
+		self.stream(self.mode)
+	#this is an automatic incremetal command for the plotter, called mostly from nudge via main callback
+	def move(self,direction,feedrate):
+		code = 'G1 X'+str(direction.x)+' Y'+str(direction.y)
+		if type(direction).__name__ is 'vector3':
+			code +=  ' Z'+str(direction.z)
+		self.stream( code+' F'+str(feedrate) )

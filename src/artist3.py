@@ -141,9 +141,7 @@ class artist3(artist):
 
 	#override method
 	def dispatch(self):
-
-		self.update_finish()
-
+		self.update_finish()#dont really need this so it can be here for now
 		if self.ready:
 			if self.flashed:
 				self.segment=[ segment(vector3(),vector3()) ]

@@ -71,14 +71,6 @@ canvas.create_window(0, 0, window=status,anchor=NW)
 if artistConfigured:
 	status_string.set('plot')
 
-def call_nudge(event):
-	if not artistConfigured:
-		nudge_window = nudge(tk)
-	else:
-		print("nudge can only be called when in preview mode")
-	#status.delete(1.0,END)
-	#status.insert(INSERT,"plot")
-
 #status.config(state=DISABLED)
 #status.config(state=NORMAL)
 #-------------------------------------------------------------
@@ -205,6 +197,26 @@ def gcode( g ):
 
 _gcodeThread = gcodeThread(serial_address,args.connect,args.verbose)
 threads.append(_gcodeThread)
+
+#-------------------------------------------------------------
+#  calling of nudge tool
+#------------------------------------------------------------
+def nudge_callback(payload):
+	_gcodeThread.grbl.move(payload,configure_data['plotter_feedrate']);
+def nudge_closed():
+	_gcodeThread.grbl.resetMode()
+def call_nudge(event):
+	if not artistConfigured and _gcodeThread.grbl.ready:
+		_gcodeThread.grbl.setIncremental()
+		nudge_window = nudge(tk,nudge_callback,nudge_closed)
+	else:
+		if not _gcodeThread.grbl.ready:
+			print("please wait for plotter to be ready")
+		else:
+			print("nudge can only be called when in preview mode")
+	#status.delete(1.0,END)
+	#status.insert(INSERT,"plot")
+
 #-------------------------------------------------------------
 #  on close
 #------------------------------------------------------------
