@@ -1,5 +1,7 @@
 #	grbl streamer
 #https://makezine.com/2016/10/24/get-to-know-your-cnc-how-to-read-g-code/
+#http://reprap.org/wiki/G-code#G60:_save_current_position_to_slot
+
 import serial #"python -m pip install pyserial"
 import threading
 import itertools #this is so I can know what type of vectors we are working with
@@ -68,7 +70,8 @@ class grbl:
 			self.stream( code+' F'+str(feedrate) )
 		else:
 			#this is absolute mode
-			code = 'G0' if segment.rapid else 'G1'
+			#code = 'G0' if segment.rapid else 'G1' #rapid really isnt rapid
+			code = 'G1'
 			code += ' X'+str(segment.p2.x)+' Y'+str(segment.p2.y)
 			if type(segment.p2).__name__ is 'vector3':
 				code +=  ' Z'+str(segment.p2.z)
@@ -82,6 +85,10 @@ class grbl:
 		self.stream('G90')
 	def resetMode(self):
 		self.stream(self.mode)
+	def setOrigin(self):
+		self.stream('G92') #this is a set position opperation
+		#if you set x y z coords, the plotter wont move, but that is where it will think it is
+		
 	#this is an automatic incremetal command for the plotter, called mostly from nudge via main callback
 	def move(self,direction,feedrate):
 		code = 'G1 X'+str(direction.x)+' Y'+str(direction.y)

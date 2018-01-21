@@ -204,6 +204,7 @@ threads.append(_gcodeThread)
 def nudge_callback(payload):
 	_gcodeThread.grbl.move(payload,configure_data['plotter_feedrate']);
 def nudge_closed():
+	_gcodeThread.grbl.setOrigin()
 	_gcodeThread.grbl.resetMode()
 def call_nudge(event):
 	if not artistConfigured and _gcodeThread.grbl.ready:
