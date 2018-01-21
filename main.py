@@ -20,6 +20,7 @@ from grbl import grbl
 # import a_01_helloWorld
 from a_02 import a_02
 from a3_02_dodecahedron import a3_02_dodecahedron
+from a3_03_loader import a3_03_loader
 
 #---------------------------------------------
 tk = Tk()
@@ -150,7 +151,7 @@ def draw( artist ):
 
 
 #_artist = a_02( vector2(width,height), configure_data["plotter_skate_height"] )
-_artist = a3_02_dodecahedron( vector2(width,height), configure_data["plotter_skate_height"] )
+_artist = a3_03_loader( vector2(width,height), configure_data["plotter_skate_height"] )
 draw(_artist)
 
 #-------------------------------------------------------------
