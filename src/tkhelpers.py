@@ -89,4 +89,16 @@ class dialog(Toplevel):
 
     def apply(self):
         pass # override
+
+    #UTILITY FUNCTION
+
+    #this will update a options menu, it needs
+    #the option menu you want to update
+    #the options
+    #and the string var that holds the selected value
+    def updateOptionsMenu(self,optionMenu,options,stringVar):
+        menu = optionMenu["menu"]
+        menu.delete(0, "end")
+        for string in options:
+            menu.add_command(label=string, command=lambda value=string: stringVar.set(value))
         

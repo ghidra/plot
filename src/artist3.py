@@ -61,15 +61,20 @@ class artist3(artist):
 		self.vm = matrix4( vector4(self.dimensions.x,0,0,self.dimensions.x*0.5),vector4(0,self.dimensions.y,0,self.dimensions.y*0.5) ) # i dobnt know what the 99 is
 		self.rm = self.pm.multiply(self.vm)
 
-	def load_asset(self,asset):
+	def load_asset(self,asset,explicit=False):
 
-		path="mod"
-		if(platform.system() == "Windows"):
-			path+="\\assets\\"
+		if not explicit:
+			path="mod"
+			if(platform.system() == "Windows"):
+				path+="\\assets\\"
+			else:
+				path+="/assets/"
+
+			configure_file = open(path+asset+".json",'r')
 		else:
-			path+="/assets/"
+			configure_file = open(asset,'r')
 
-		configure_file = open(path+asset+".json",'r')
+
 		configure_data = json.loads(configure_file.read())
 
 		new_asset = {}
