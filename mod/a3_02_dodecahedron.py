@@ -56,16 +56,9 @@ from tkhelpers import dialog
 class configure_artist(dialog):
 	def __init__(self,parent,callback):
 
-		self.callback=callback
-
-		self.e = {} # these are the tkinter elements that are made
-		self.v = {} # these are the tkinter variables that are made
-		self.payload = {}
-
-		dialog.__init__(self, parent, "artist settings")
+		dialog.__init__(self, parent, "artist settings",buttonBoxType=1,applyCallback=callback)
 
 	def body(self, master):
-
 
 		Label(master, text="rotation x:").grid(row=0)
 		self.v["rx"] = DoubleVar()
@@ -84,22 +77,3 @@ class configure_artist(dialog):
 		self.v["rz"].set(0)
 		self.e["rz"] = Scale(master,variable = self.v["rz"],orient=HORIZONTAL, from_=0, to=10,resolution=0.01)
 		self.e["rz"].grid(row=2,column=1)
-
-	def buttonbox(self):
-		box = Frame(self)
-		w = Button(box, text="Apply", width=10, command=self.apply, default=ACTIVE)
-		w.pack(side=LEFT, padx=5, pady=5)
-		w = Button(box, text="OK", width=10, command=self.ok)
-		w.pack(side=LEFT, padx=5, pady=5)
-
-		self.bind("<Return>", self.ok)
-		self.bind("<Escape>", self.cancel)
-
-		box.pack()
-
-	def apply(self):
-		for v in self.v:
-			self.payload[v]=self.v[v].get()
-		self.callback(self.payload)
-
-		pass

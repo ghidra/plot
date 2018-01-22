@@ -62,16 +62,10 @@ from tkhelpers import dialog
 class configure_artist(dialog):
 	def __init__(self,parent,directory,callback):
 
-		self.callback=callback
 		self.directory=directory
-
 		self.choices = []
 
-		self.e = {} # these are the tkinter elements that are made
-		self.v = {} # these are the tkinter variables that are made
-		self.payload = {}
-
-		dialog.__init__(self, parent, "artist settings")
+		dialog.__init__(self, parent, "artist settings", buttonBoxType=1,applyCallback=callback)
 		
 
 	def body(self, master):
@@ -86,27 +80,14 @@ class configure_artist(dialog):
 		w.grid(row=0,column=1)
 
 		self.v["file"] = StringVar()
-		self.choices = self.gatherFiles()
+		self.choices = self.gatherFiles(self.directory)
 		self.v["file"].set(self.choices[0])
 		self.e["file"] = OptionMenu(master,self.v["file"], *self.choices )
 		self.e["file"].grid(row=1,column=0)
 
 		#this is strange, to get a callback on when the dropdown choce is made, this is how it is connected
-		self.v["file"].trace('w', self.changeFile)
+		self.v["file"].trace('w', self.optionPicked)
 		#loop currently set folder to get the files
-
-
-	def buttonbox(self):
-		box = Frame(self)
-		w = Button(box, text="Apply", width=10, command=self.apply, default=ACTIVE)
-		w.pack(side=LEFT, padx=5, pady=5)
-		w = Button(box, text="OK", width=10, command=self.ok)
-		w.pack(side=LEFT, padx=5, pady=5)
-
-		self.bind("<Return>", self.ok)
-		self.bind("<Escape>", self.cancel)
-
-		box.pack()
 
 	#-------------------------------------------------------------
 	#CUSTOM methods to this --------------------------------------
@@ -116,31 +97,8 @@ class configure_artist(dialog):
 		self.directory = filedialog.askdirectory(initialdir = self.directory,title = "Select directory")
 		#only proceed if we change the directory
 		if prev != self.directory:
-			self.choices = self.gatherFiles()
+			self.choices = self.gatherFiles(self.directory)
 			self.v["file"].set(self.choices[0])
 			self.v["path"].set(self.directory)
 			#this is a helper function to refil the dropdown menu
 			self.updateOptionsMenu(self.e["file"],self.choices,self.v["file"])
-		#if the directory changed, we need to repopulate drop down, if we find something
-
-	#loops the folder to find what we want to populate the drop down with
-	def gatherFiles(self):
-		#loop that directory for some files to load
-		tmp = []
-		for filename in os.listdir(self.directory):
-			if filename.endswith(".json"): 
-				tmp.append(filename)
-		return tmp
-
-	#when a file is choosen from the drop down, we can load it i guess
-	def changeFile(self,*args):
-		print("-----"+self.v["file"].get())
-
-	#-------------------------------------------------------------
-
-	def apply(self):
-		for v in self.v:
-			self.payload[v]=self.v[v].get()
-		self.callback(self.payload)
-
-		pass

@@ -8,8 +8,6 @@ class preferences(dialog):
     def __init__(self,parent,title = None,file=None):
 
         self.file = file
-        self.e = {} # these are the tkinter elements that are made
-        self.v = {} # these are the tkinter variables that are made
 
         dialog.__init__(self, parent, "plot preferences")
 

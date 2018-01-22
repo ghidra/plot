@@ -12,10 +12,7 @@ class nudge(dialog):
         self.value_element = None # these are the tkinter elements that are made
         self.value_variable = StringVar() # these are the tkinter variables that are made
 
-        self.callback = callback
-        self.onclose = onclose
-
-        dialog.__init__(self, parent, "nudge", False)
+        dialog.__init__(self, parent, "nudge", False, applyCallback=callback, cancelCallback=onclose)
 
     def body(self, master):
 
@@ -46,15 +43,5 @@ class nudge(dialog):
 
 
     def apply(self,direction):
-        
         direction *= float(re.findall('\d+', self.value_variable.get() )[0])
         self.callback(direction)
-        #print("nudge this"+direction.printable())
-        # first = int(self.value_variable.get())
-        # second = int(self.e2.get())
-        # print(first) 
-        # print(second) # or something
-
-    def cancel(self, event=None):
-        self.onclose()
-        dialog.cancel(self,event)

@@ -17,15 +17,16 @@ from nudge import nudge
 from vector import *
 from segment import segment
 from grbl import grbl
-# import a_01_helloWorld
-from a_02 import a_02
-from a3_02_dodecahedron import a3_02_dodecahedron
-from a3_03_loader import a3_03_loader
+
+from artist_loader import artist_loader
 
 #---------------------------------------------
 tk = Tk()
 tk.title( "plot" )
 #---------------------------------------------
+artists=artist_loader()
+#---------------------------------------------
+
 # Define command line argument interface
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-c', '--connect', action='store_true', default=False, help='connect to serial')
@@ -127,6 +128,12 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
+
+def load_artist(event):
+	artists.load(tk,load_callback)
+def load_callback(artist_name):
+	print(artist_name)
+
 segmentsGenerated=0
 def draw( artist ):
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
@@ -151,7 +158,7 @@ def draw( artist ):
 
 
 #_artist = a_02( vector2(width,height), configure_data["plotter_skate_height"] )
-_artist = a3_03_loader( vector2(width,height), configure_data["plotter_skate_height"] )
+_artist = artists.list["a3_03_loader"]( vector2(width,height), configure_data["plotter_skate_height"] )
 draw(_artist)
 
 #-------------------------------------------------------------
@@ -234,6 +241,7 @@ tk.protocol("WM_DELETE_WINDOW", close)
 #------------------------------------------------------------
 canvas.bind_all( "<p>", call_preferences )
 canvas.bind_all( "<n>", call_nudge )
+canvas.bind_all( "<l>", load_artist )
 canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas) )
 canvas.bind_all( "<space>", start_plotting )
 #canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )
