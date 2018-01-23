@@ -1,5 +1,6 @@
 import os
 import platform
+from random import randint
 
 #this class id for dealing with the artist in the mod folder, and can load them from other folders too
 class artist_loader():
@@ -21,6 +22,9 @@ class artist_loader():
 				tmp.append(filename.split(".")[0])
 		return tmp
 
+	def getRandom(self):
+		return self.names[randint(0,len(self.names)-1)]
+
 	#-------
 	#i need to call this from the main script
 	def load(self,tk,callback):
@@ -31,10 +35,14 @@ class artist_loader():
 	def load_callback(self,payload):
 		#self.canvas.delete("artist")
 		#first, if this is not an internal folder, we need to load in the files
-
+		#if payload["path"] != "mod":
+		#	sys.path.append(payload["path"])
+		#	self.directory = payload["path"]
 		#now we can pass this to the program to use
-		self.callback("newArtist")
+		#self.callback(payload["path"]+"/"+payload["file"])
 		#self.load_asset(payload["path"]+"/"+payload["file"],True)
+		name = payload["file"].split(".")[0]
+		self.callback(name)
 		
 
 #-----------------------------------------

@@ -128,14 +128,20 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
+_artist = artists.list[artists.getRandom()]( vector2(width,height), configure_data["plotter_skate_height"] )
 
 def load_artist(event):
 	artists.load(tk,load_callback)
 def load_callback(artist_name):
-	print(artist_name)
+	global _artist
+	canvas.delete("artist")
+	print("width:"+str(width)+" height:"+str(height)+" skate:"+str(configure_data["plotter_skate_height"])+" artist:"+artist_name)
+	_artist = artists.list[artist_name]( vector2(width,height), configure_data["plotter_skate_height"] )
+
 
 segmentsGenerated=0
-def draw( artist ):
+def draw(  ):
+	global _artist
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		
 		# 	print("clearing")
@@ -144,7 +150,7 @@ def draw( artist ):
 		#print("---------------")
 			#canvas.delete("artist")
 
-		seg = artist.update()
+		seg = _artist.update()
 		segmentsGenerated=_artist.segment_count
 		if seg[0].valid:
 			artistSegmentBuffer.extend(seg)
@@ -153,13 +159,9 @@ def draw( artist ):
 					canvas.create_line(s.p1.x,s.p1.y,s.p2.x,s.p2.y,fill=s.color, tags="artist")
 					#canvas.itemconfig(item, tags=("artist"))
 
-	tk.after(afterSpeed,draw,artist)
+	tk.after(afterSpeed,draw)
 
-
-
-#_artist = a_02( vector2(width,height), configure_data["plotter_skate_height"] )
-_artist = artists.list["a3_03_loader"]( vector2(width,height), configure_data["plotter_skate_height"] )
-draw(_artist)
+draw()
 
 #-------------------------------------------------------------
 # Start plotting
