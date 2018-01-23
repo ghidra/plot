@@ -162,3 +162,57 @@ class artist3(artist):
 		return self.dispatch()
 				
 
+##---------------------
+from tkinter import *
+from tkhelpers import dialog
+
+class artist3_dialog(dialog):
+	def __init__(self,parent,attributes,callback):
+		self.attributes=attributes #incoming dictionary or attributes I want to reference
+		dialog.__init__(self, parent, "artist settings",buttonBoxType=1,applyCallback=callback)
+
+	def body(self, master):
+		group = LabelFrame(master, text="Camera", padx=1, pady=1)
+		group.grid(row=0, padx=1, pady=1)
+
+		groupt = LabelFrame(group, text="Translate", padx=1, pady=1)
+		groupt.grid(row=0, padx=1, pady=1)
+
+		groupr = LabelFrame(group, text="Rotate", padx=1, pady=1)
+		groupr.grid(row=1, padx=1, pady=1)
+
+		Label(groupt, text="x:").grid(row=0)
+		self.v["cam_tx"] = DoubleVar()
+		self.v["cam_tx"].set(0)
+		self.e["cam_tx"] = Scale(groupt,variable = self.v["cam_tx"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_tx"].grid(row=0,column=1)
+
+		Label(groupt, text="y:").grid(row=1)
+		self.v["cam_ty"] = DoubleVar()
+		self.v["cam_ty"].set(0)
+		self.e["cam_ty"] = Scale(groupt,variable = self.v["cam_ty"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_ty"].grid(row=1,column=1)
+
+		Label(groupt, text="z:").grid(row=2)
+		self.v["cam_tz"] = DoubleVar()
+		self.v["cam_tz"].set(0)
+		self.e["cam_tz"] = Scale(groupt,variable = self.v["cam_tz"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_tz"].grid(row=2,column=1)
+
+		Label(groupr, text="x:").grid(row=0)
+		self.v["cam_rx"] = DoubleVar()
+		self.v["cam_rx"].set(0)
+		self.e["cam_rx"] = Scale(groupr,variable = self.v["cam_rx"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_rx"].grid(row=0,column=1)
+
+		Label(groupr, text="y:").grid(row=1)
+		self.v["cam_ry"] = DoubleVar()
+		self.v["cam_ry"].set(0)
+		self.e["cam_ry"] = Scale(groupr,variable = self.v["cam_ry"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_ry"].grid(row=1,column=1)
+
+		Label(groupr, text="z:").grid(row=2)
+		self.v["cam_rz"] = DoubleVar()
+		self.v["cam_rz"].set(0)
+		self.e["cam_rz"] = Scale(groupr,variable = self.v["cam_rz"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.e["cam_rz"].grid(row=2,column=1)
