@@ -12,8 +12,9 @@ class a3_01_cube(artist3):
 		self.turtle = self.dimensions*0.5
 
 		self.load_asset("cube")
+		self.setup()
 		self.render()
 	
-	def update(self):
-		super().update()
-		return self.dispatch()
+	# def update(self):
+	# 	super().update()
+	# 	return self.dispatch()

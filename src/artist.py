@@ -26,6 +26,8 @@ class artist:
 
 		self.canvas = None #this is for preview related code
 		self.segment_count=0#for counting how many segments we have generated
+
+		self.attributes={}#this is for holding updatable attributes by name
 		
 	def update(self):
 		self.tick = (time.time()-self.last)

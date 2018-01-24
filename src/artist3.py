@@ -21,7 +21,7 @@ class artist3(artist):
 			far = 256.0
 
 		self.fov = fov
-		self.rfov = fov*(3.14159265 / 180.0) #focal view in radians
+		#self.rfov = fov*(3.14159265 / 180.0) #focal view in radians
 		self.near = near
 		self.far = far
 		self.ratio	= dimensions.x/dimensions.y
@@ -35,20 +35,22 @@ class artist3(artist):
 		self.rm	= matrix4()
 
 		#default outward translation
-		self.rnm = self.ttm.rotate_x(0.0).rotate_y(33.0).translate( vector3(0.0,0.0,-2.0) )
-		self.rnm.transpose()
-		
-		self.frustum = self.make_frustum();
+		#self.rnm = self.ttm.rotate_x(0.0).rotate_y(33.0).translate( vector3(0.0,0.0,-2.0) )
+		#self.rnm.transpose()
+		#self.frustum = self.make_frustum();
+
+		#self.setup()
 
 		self.assets = []
 
 		self.flashed = False #after sending this to plotter, stop sending it
 	
 	def make_frustum(self):
-		cosf = math.cos(math.sqrt(self.rfov))
-		sinf = math.sin(math.sqrt(self.rfov))
+		rfov = self.fov*(3.14159265 / 180.0) #focal view in radians
+		cosf = math.cos(math.sqrt(rfov))
+		sinf = math.sin(math.sqrt(rfov))
 		nf = 1-self.near/self.far
-		tang = 	2*(math.tan(math.sqrt(self.rfov)))
+		tang = 	2*(math.tan(math.sqrt(rfov)))
 		y_near = tang * self.near          
 		x_near = y_near * self.ratio
 		y_far = tang * self.far
@@ -96,6 +98,24 @@ class artist3(artist):
 			new_asset["rnm"] = matrix4()
 
 		self.assets.append(new_asset)
+
+	def setup(self,payload={}):
+		self.attributes["cam_fov"] = payload["cam_fov"] if "cam_fov" in payload else self.fov
+		self.fov = self.attributes["cam_fov"]
+		self.attributes["cam_rx"] = payload["cam_rx"] if "cam_rx" in payload else 0.0
+		self.attributes["cam_ry"] = payload["cam_ry"] if "cam_ry" in payload else 33.0
+		self.attributes["cam_rz"] = payload["cam_rz"] if "cam_rz" in payload else 0.0
+		self.attributes["cam_tx"] = payload["cam_tx"] if "cam_tx" in payload else 0.0
+		self.attributes["cam_ty"] = payload["cam_ty"] if "cam_ty" in payload else 0.0
+		self.attributes["cam_tz"] = payload["cam_tz"] if "cam_tz" in payload else -2.0
+
+		self.rnm = matrix4()
+		self.ttm = matrix4()
+		self.rnm = self.ttm.rotate_x(self.attributes["cam_rx"]).rotate_y(self.attributes["cam_ry"]).rotate_z(self.attributes["cam_rz"]).translate( vector3(self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"]) )
+		self.rnm.transpose()
+
+		self.make_frustum();
+
 
 	def render(self):
 		#we need to move the assets to render space
@@ -160,6 +180,19 @@ class artist3(artist):
 	def update(self):
 		super().update()
 		return self.dispatch()
+
+	#=====================
+	def configure(self,tk,canvas):
+		self.canvas=canvas
+		c = artist3_dialog(tk,self.attributes,self.configure_callback)
+
+
+	def configure_callback(self,payload):
+		self.canvas.delete("artist")
+		self.segment_count=0
+		self.setup(payload)
+		self.render()
+		self.flashed=False
 				
 
 ##---------------------
@@ -172,47 +205,57 @@ class artist3_dialog(dialog):
 		dialog.__init__(self, parent, "artist settings",buttonBoxType=1,applyCallback=callback)
 
 	def body(self, master):
-		group = LabelFrame(master, text="Camera", padx=1, pady=1)
+		self.mainframe = LabelFrame(master, padx=1, pady=1)
+		self.mainframe.grid()
+
+		group = LabelFrame(self.mainframe, text="Camera", padx=1, pady=1)
 		group.grid(row=0, padx=1, pady=1)
 
+		Label(group, text="fov:").grid(row=0)
+		self.v["cam_fov"] = DoubleVar()
+		self.v["cam_fov"].set( self.attributes["cam_fov"] if "cam_fov" in self.attributes else 90.0 )
+		self.e["cam_fov"] = Scale(group,variable = self.v["cam_fov"],orient=HORIZONTAL, from_=1, to=180,resolution=0.1)
+		self.e["cam_fov"].grid(row=0,column=1)
+
 		groupt = LabelFrame(group, text="Translate", padx=1, pady=1)
-		groupt.grid(row=0, padx=1, pady=1)
+		groupt.grid(row=1, columnspan=2,padx=1, pady=1)
 
 		groupr = LabelFrame(group, text="Rotate", padx=1, pady=1)
-		groupr.grid(row=1, padx=1, pady=1)
+		groupr.grid(row=2, columnspan=2,padx=1, pady=1)
 
 		Label(groupt, text="x:").grid(row=0)
 		self.v["cam_tx"] = DoubleVar()
-		self.v["cam_tx"].set(0)
-		self.e["cam_tx"] = Scale(groupt,variable = self.v["cam_tx"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_tx"].set( self.attributes["cam_tx"] if "cam_tx" in self.attributes else 0.0 )
+		self.e["cam_tx"] = Scale(groupt,variable = self.v["cam_tx"],orient=HORIZONTAL, from_=-2, to=2,resolution=0.01)
 		self.e["cam_tx"].grid(row=0,column=1)
 
 		Label(groupt, text="y:").grid(row=1)
 		self.v["cam_ty"] = DoubleVar()
-		self.v["cam_ty"].set(0)
-		self.e["cam_ty"] = Scale(groupt,variable = self.v["cam_ty"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_ty"].set( self.attributes["cam_ty"] if "cam_ty" in self.attributes else 0.0 )
+		self.e["cam_ty"] = Scale(groupt,variable = self.v["cam_ty"],orient=HORIZONTAL, from_=-2, to=2,resolution=0.01)
 		self.e["cam_ty"].grid(row=1,column=1)
 
 		Label(groupt, text="z:").grid(row=2)
 		self.v["cam_tz"] = DoubleVar()
-		self.v["cam_tz"].set(0)
-		self.e["cam_tz"] = Scale(groupt,variable = self.v["cam_tz"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_tz"].set( self.attributes["cam_tz"] if "cam_tz" in self.attributes else 0.0 )
+		self.e["cam_tz"] = Scale(groupt,variable = self.v["cam_tz"],orient=HORIZONTAL, from_=-2, to=2,resolution=0.01)
 		self.e["cam_tz"].grid(row=2,column=1)
 
 		Label(groupr, text="x:").grid(row=0)
 		self.v["cam_rx"] = DoubleVar()
-		self.v["cam_rx"].set(0)
-		self.e["cam_rx"] = Scale(groupr,variable = self.v["cam_rx"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_rx"].set( self.attributes["cam_rx"] if "cam_rx" in self.attributes else 0.0 )
+		self.e["cam_rx"] = Scale(groupr,variable = self.v["cam_rx"],orient=HORIZONTAL, from_=-180, to=180,resolution=1.0)
 		self.e["cam_rx"].grid(row=0,column=1)
 
 		Label(groupr, text="y:").grid(row=1)
 		self.v["cam_ry"] = DoubleVar()
-		self.v["cam_ry"].set(0)
-		self.e["cam_ry"] = Scale(groupr,variable = self.v["cam_ry"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_ry"].set( self.attributes["cam_ry"] if "cam_ry" in self.attributes else 0.0 )
+		self.e["cam_ry"] = Scale(groupr,variable = self.v["cam_ry"],orient=HORIZONTAL, from_=-180, to=180,resolution=1.0)
 		self.e["cam_ry"].grid(row=1,column=1)
 
 		Label(groupr, text="z:").grid(row=2)
 		self.v["cam_rz"] = DoubleVar()
-		self.v["cam_rz"].set(0)
-		self.e["cam_rz"] = Scale(groupr,variable = self.v["cam_rz"],orient=HORIZONTAL, from_=0, to=360,resolution=1.0)
+		self.v["cam_rz"].set( self.attributes["cam_rz"] if "cam_rz" in self.attributes else 0.0 )
+		self.e["cam_rz"] = Scale(groupr,variable = self.v["cam_rz"],orient=HORIZONTAL, from_=-180, to=180,resolution=1.0)
 		self.e["cam_rz"].grid(row=2,column=1)
+

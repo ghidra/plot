@@ -22,7 +22,7 @@ class a3_03_loader(artist3):
 
 		self.load_asset("test_slice")
 		
-		#self.setup({"rx":4.0,"ry":4.0,"rz":4.0})
+		#self.setup()#{"rx":4.0,"ry":4.0,"rz":4.0})
 		
 		
 
