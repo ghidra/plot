@@ -14,7 +14,3 @@ class a3_01_cube(artist3):
 		self.load_asset("cube")
 		self.setup()
 		self.render()
-	
-	# def update(self):
-	# 	super().update()
-	# 	return self.dispatch()

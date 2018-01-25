@@ -202,7 +202,7 @@ from tkhelpers import dialog
 class artist3_dialog(dialog):
 	def __init__(self,parent,attributes,callback):
 		self.attributes=attributes #incoming dictionary or attributes I want to reference
-		dialog.__init__(self, parent, "artist settings",buttonBoxType=1,applyCallback=callback)
+		super().__init__(parent, "artist settings",buttonBoxType=1,applyCallback=callback)
 
 	def body(self, master):
 		self.mainframe = LabelFrame(master, padx=1, pady=1)

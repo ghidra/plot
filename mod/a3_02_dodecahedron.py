@@ -12,24 +12,11 @@ class a3_02_dodecahedron(artist3):
 
 		self.copies = 8
 
-		self.rnm = matrix4()
-		self.rnm = self.rnm.translate( vector3(0.0,0.0,-2.0) )
-
 		self.load_asset("dodecahedron")
-
-		#now duplicate the asset a bunch
-		for i in range(self.copies-1):
-			self.assets.append(dict(self.assets[0]))
-		
 		self.setup({"rx":4.0,"ry":4.0,"rz":4.0})
-		
 		self.render()
 	
-	# def update(self):
-	# 	super().update()
-	# 	return self.dispatch()
 	def setup(self,payload={}):
-
 		super().setup(payload);
 
 		self.attributes["copies"] = payload["copies"] if "copies" in payload else self.copies
@@ -38,28 +25,19 @@ class a3_02_dodecahedron(artist3):
 		self.attributes["ry"] = payload["ry"] if "ry" in payload else 4.0
 		self.attributes["rz"] = payload["rz"] if "rz" in payload else 4.0
 
-		# if "copies" in payload:
-		# 	self.copies = payload["copies"]
 		self.assets = self.assets[:1]
+
 		for i in range(self.copies-1):
 			self.assets.append(dict(self.assets[0]))
-		#we need to clear this out and re render it
+		
 		for i in range(self.copies):
 			self.assets[i]["rnm"] = matrix4()
-			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*payload["rx"]).rotate_y(float(i+1)*payload["ry"]).rotate_z(float(i+1)*payload["rz"])#.rotate_y(i*2.0)
+			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*self.attributes["rx"]).rotate_y(float(i+1)*self.attributes["ry"]).rotate_z(float(i+1)*self.attributes["rz"])#.rotate_y(i*2.0)
 
 
 	def configure(self,tk,canvas):
 		self.canvas=canvas
 		c = configure_artist(tk,self.attributes,self.configure_callback)
-
-
-	# def configure_callback(self,payload):
-	# 	self.canvas.delete("artist")
-	# 	self.segment_count=0
-	# 	self.setup(payload)
-	# 	self.render()
-	# 	self.flashed=False
 
 
 #---------------------

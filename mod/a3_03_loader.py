@@ -11,78 +11,74 @@ class a3_03_loader(artist3):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 
-		self.rnm = matrix4()
-		self.rnm = self.rnm.translate( vector3(0.0,0.0,-2.0) )
+		self.directory = "mod/assets"
+		self.filename = "test_slice.json"
 
-		#default directory setting
-		if(platform.system() == "Windows"):
-			self.directory="mod\\assets"
-		else:
-			self.directory="mod/assets"
-
-		self.load_asset("test_slice")
-		
-		#self.setup()#{"rx":4.0,"ry":4.0,"rz":4.0})
-		
+		self.setup( {"path":self.directory,"file":self.filename} )	
+		self.render()
 		
 
 	def load_asset(self,asset,explicit=False):
 		del self.assets[:]
 		super().load_asset(asset,explicit)
-		self.render()
+		
 	
-	def setup(self,payload):
-		pass
-		# for i in range(self.copies):
-		# 	self.assets[i]["rnm"] = matrix4()
-		# 	self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*payload["rx"]).rotate_y(float(i+1)*payload["ry"]).rotate_z(float(i+1)*payload["rz"])#.rotate_y(i*2.0)
+	def setup(self,payload={}):
+		super().setup(payload)
+
+		self.attributes["path"] = payload["path"] if "path" in payload else self.directory
+		self.directory = self.attributes["path"]
+		self.attributes["file"] = payload["file"] if "file" in payload else self.filename
+		self.filename = self.attributes["file"]
+		self.attributes["rx"] = payload["rx"] if "rx" in payload else 0.0
+		self.attributes["ry"] = payload["ry"] if "ry" in payload else 0.0
+		self.attributes["rz"] = payload["rz"] if "rz" in payload else 0.0
+
+		self.load_asset(payload["path"]+"/"+payload["file"],True)
+
+		self.assets[0]["rnm"] = matrix4()
+		self.assets[0]["rnm"] = self.assets[0]["rnm"].rotate_x(self.attributes["rx"]).rotate_y(self.attributes["ry"]).rotate_z(self.attributes["rz"])#.rotate_y(i*2.0)
 
 
 	def configure(self,tk,canvas):
 		self.canvas=canvas
-		c = configure_artist(tk,self.directory,self.configure_callback)
-
-
-	def configure_callback(self,payload):
-		self.canvas.delete("artist")
-		self.segment_count=0
-		#self.setup(payload)
-		#self.render()
-		self.load_asset(payload["path"]+"/"+payload["file"],True)
-		self.flashed=False
+		c = configure_artist(tk,self.attributes,self.configure_callback)
 
 
 #---------------------
 #  settings
 #---------------------
 from tkinter import *
-from tkinter import filedialog
-from tkhelpers import dialog
+from artist3 import artist3_dialog
 
-class configure_artist(dialog):
-	def __init__(self,parent,directory,callback):
+class configure_artist(artist3_dialog):
+	def __init__(self,parent,attributes,callback):
 
-		self.directory=directory
+		self.directory=attributes["path"] #sp I can access it in change dir
 		self.choices = []
 
-		dialog.__init__(self, parent, "artist settings", buttonBoxType=1,applyCallback=callback)
+		super().__init__( parent, attributes, callback)
 		
 
 	def body(self, master):
+		super().body(master)
+
+		group = LabelFrame(self.mainframe, text="Artist Settings", padx=1, pady=1)
+		group.grid(row=1, padx=1, pady=1)
 
 		#box = Frame(self)
 		self.v["path"] = StringVar()
-		self.v["path"].set(self.directory)
-		self.e["path"] = Entry(master,textvariable = self.v["path"], width=40)
+		self.v["path"].set(self.attributes["path"])# if "path" in self.attributes else 0)
+		self.e["path"] = Entry(group,textvariable = self.v["path"], width=40)
 		self.e["path"].grid(row=0,column=0)
 
-		w = Button(master, text="Browse", width=10, command=self.changeDirectory, default=ACTIVE)
+		w = Button(group, text="Browse", width=10, command=self.changeDirectory, default=ACTIVE)
 		w.grid(row=0,column=1)
 
 		self.v["file"] = StringVar()
-		self.choices = self.gatherFiles(self.directory)
+		self.choices = self.gatherFiles(self.attributes["path"])
 		self.v["file"].set(self.choices[0])
-		self.e["file"] = OptionMenu(master,self.v["file"], *self.choices )
+		self.e["file"] = OptionMenu(group,self.v["file"], *self.choices )
 		self.e["file"].grid(row=1,column=0)
 
 		#this is strange, to get a callback on when the dropdown choce is made, this is how it is connected
