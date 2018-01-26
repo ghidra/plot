@@ -7,6 +7,9 @@ from matrix import *
 from vector import *
 from segment import segment
 
+import numpy as np
+import time # measure if there is speed improvements
+
 class artist3(artist):
 	def __init__(self,dimensions,skateheight,fov=None,near=None,far=None):
 		super().__init__(dimensions,skateheight)
@@ -33,6 +36,14 @@ class artist3(artist):
 		self.pm	= matrix4()#projection matrix
 		self.vm	= matrix4()#view matrix
 		self.rm	= matrix4()
+
+		#numpy matrices
+		#---------------------
+		self.ttm_n = np.identity(4)
+		self.rnm_n = np.identity(4)
+		self.pm_n = np.identity(4)
+		self.vm_n = np.identity(4)
+		self.rm_n = np.identity(4)
 
 		#default outward translation
 		#self.rnm = self.ttm.rotate_x(0.0).rotate_y(33.0).translate( vector3(0.0,0.0,-2.0) )
@@ -61,7 +72,31 @@ class artist3(artist):
 		
 		self.pm = matrix4( vector4(cosf,0,0,0),vector4(0,-cosf,0,0),vector4(0,0,sinf/nf,-(math.sin(1)/nf)*self.near),vector4(0,0,sinf,0) )
 		self.vm = matrix4( vector4(self.dimensions.x,0,0,self.dimensions.x*0.5),vector4(0,self.dimensions.y,0,self.dimensions.y*0.5) ) # i dobnt know what the 99 is
+		
 		self.rm = self.pm.multiply(self.vm)
+
+		#print("-----makefrustum")
+		#print(self.rm.printable())
+
+		#numpy versions
+		#self.pm_n = np.matrix( [[cosf,0,0,0],[0,-cosf,0,0],[0,0,sinf/nf,-(math.sin(1)/nf)*self.near],[0,0,sinf,0]] )
+		#self.vm_n = np.matrix( [[self.dimensions.x,0,0,self.dimensions.x*0.5],[0,self.dimensions.y,0,self.dimensions.y*0.5],[0,0,1,0],[0,0,0,1]] ) # i dobnt know what the 99 is
+		self.pm_n = np.matrix( [
+			[cosf,0,0,0],
+			[0,-cosf,0,0],
+			[0,0,sinf/nf,sinf],
+			[0,0,-(math.sin(1)/nf)*self.near,0]] )
+		self.vm_n = np.matrix( [
+			[self.dimensions.x,0,0,0],
+			[0,self.dimensions.y,0,0],
+			[0,0,1,0],
+			[self.dimensions.x*0.5,self.dimensions.y*0.5,0,1]] ) # i dobnt know what the 99 is
+		#print(self.pm_n)
+		#print(self.vm_n)
+		self.rm_n = self.pm_n * self.vm_n
+
+		#print("-----makefrustum numpy")
+		#print(self.rm_n.T)
 
 	def load_asset(self,asset,explicit=False):
 
@@ -87,15 +122,24 @@ class artist3(artist):
 				new_asset["name"] = configure_data[pref]
 			#------------------------------------
 			if pref == "points":
-				new_points = []
+				new_asset["points"] = []
+				new_asset["numpy_points"] = []
 				for i in range( len(configure_data[pref])//3 ):
-					new_points.append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
-				new_asset["points"] = new_points
+					new_asset["points"].append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
+					#numpy methods
+					if(i==0):
+						new_asset["numpy_points"] = np.array([[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]])
+					else:
+						new_asset["numpy_points"] = np.append(new_asset["numpy_points"],[[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]],axis=0)
+					#--------------------
+				#new_asset["points"] = new_points
+				#print(new_asset["numpy_points"])
 			#------------------------------------
 			if pref == "segments":
 				new_asset["segments"] = list(configure_data[pref])
 			#------------------------------------
 			new_asset["rnm"] = matrix4()
+			new_asset["rnm_n"] = np.identity(4)
 
 		self.assets.append(new_asset)
 
@@ -114,6 +158,17 @@ class artist3(artist):
 		self.rnm = self.ttm.rotate_x(self.attributes["cam_rx"]).rotate_y(self.attributes["cam_ry"]).rotate_z(self.attributes["cam_rz"]).translate( vector3(self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"]) )
 		self.rnm.transpose()
 
+		#print("-----setup")
+		#print(self.rnm.printable())
+
+		self.ttm_n = np.identity(4)
+		self.rnm_n = np.identity(4)
+		self.rnm_n = np_translate( np_rotate_z(  np_rotate_y(  np_rotate_x(self.ttm_n,self.attributes["cam_rx"])  ,self.attributes["cam_ry"])  ,self.attributes["cam_rz"]) , self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"] )
+		#self.rmm_n = 
+		#print("-----setup numpy")
+		#print(self.rnm_n)
+		#this i slooking right... except the right and bottom rows are different
+
 		self.make_frustum();
 
 
@@ -125,32 +180,55 @@ class artist3(artist):
 		#counter=0
 		segment_insert_index=0 #if we have multiple assets, we need to insert skates at the right index
 		#for each asset, lets start transforming points
+		oldTotal=0
+		numpyTotal=0
+		segTotal=0
 		for asset in self.assets:
 			
 			newttm = matrix4()
 			newttm = newttm.multiply( asset["rnm"] ).multiply( self.rnm )
 			#newttm = newttm.multiply( self.rnm ).multiply( asset["rnm"] )
 			newttm = newttm.multiply( self.rm )
+			#print("-----render")
+			#print(newttm.printable())
+
+			#numpy version
+			newttm_n = np.identity(4)
+			newttm_n = newttm_n * asset["rnm_n"]
+			newttm_n = newttm_n * self.rnm_n
+			newttm_n = newttm_n * self.rm_n
+			#print("-----render numpy")
+			#print(newttm_n.T)
 
 			#store out newly transformed points
 			points = []
 			#transform each point
-			# print(self.rnm.printable())
-			# print(asset["rnm"].printable())
-			# print(self.rm.printable())
+			start = time.time()
+			#print("START OLD ----------")
 			for p in asset["points"]:
 				point = vector4(p.x,p.y,p.z,1.0)
 				point = point.mult_matrix4( newttm );
-
+				#print( vector3(point.x,point.y,point.z).printable())#TEMP
 				
 				ux = point.x / point.w;
 				uy = point.y / point.w;
 				uz = point.z / point.w; #z is kind of useless in this case
 
 				points.append( vector3(ux,uy,0.0) )
+			end = time.time()
+			oldTotal+= end - start
+			#print("END OLD ----------" + str(end - start))
 
 				# print("x:"+str(ux)+", y:"+str(uy))
-			
+			#numpy style points
+			start = time.time()
+			#print("START NUMPY ----------")
+			npoints = asset["numpy_points"].dot(newttm_n)
+			#print(npoints)
+			end = time.time()
+			numpyTotal += end - start
+			#print("END NUMPY ----------" + str(end - start))
+			start = time.time()
 			for seg in asset["segments"]:
 				for i in range( len(seg)-1 ):
 					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )# print( points[seg[i]].printable() )
@@ -162,7 +240,11 @@ class artist3(artist):
 				#set data for next loop
 				self.turtle_last = vector2(self.segment[len(self.segment)-1].p2.x,self.segment[len(self.segment)-1].p2.y)
 				segment_insert_index = len(self.segment)
-
+			end = time.time()
+			segTotal += end - start
+		print("old ----------"+str(oldTotal))
+		print("numpy ----------"+str(numpyTotal))
+		print("segs ----------"+str(segTotal))
 
 	#override method
 	def dispatch(self):

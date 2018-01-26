@@ -2,6 +2,8 @@ import math
 #import numbers
 from vector import *
 
+import numpy as np
+
 class matrix3:
 	def __init__(self,r1=None,r2=None,r3=None):
 		
@@ -173,4 +175,39 @@ class matrix4(matrix3):
 		return self.multiply( matrix4( vector4(rollcos, -(rollsin),	0, 0), vector4(rollsin, rollcos,	0, 0) ) )
 
 	def printable(self):
-		return str(self._n11)+", "+str(self._n12)+", "+str(self._n13)+", "+str(self._n14)+", "+str(self._n21)+", "+str(self._n22)+", "+str(self._n23)+", "+str(self._n24)+", "+str(self._n31)+", "+str(self._n32)+", "+str(self._n33)+", "+str(self._n34)+", "+str(self._n41)+", "+str(self._n42)+", "+str(self._n43)+", "+str(self._n44)
+		return str(self._n11)+", "+str(self._n12)+", "+str(self._n13)+", "+str(self._n14)+"\n"+str(self._n21)+", "+str(self._n22)+", "+str(self._n23)+", "+str(self._n24)+"\n"+str(self._n31)+", "+str(self._n32)+", "+str(self._n33)+", "+str(self._n34)+"\n"+str(self._n41)+", "+str(self._n42)+", "+str(self._n43)+", "+str(self._n44)
+
+
+
+##------------------------
+def np_rotate_x(m,a):
+	d = a*(3.14159265359/180.0)
+	pitchsin = math.sin(d)
+	pitchcos = math.cos(d)
+	return m * np.matrix( [
+		[1, 0, 0, 0], 
+		[0, pitchcos, pitchsin, 0], 
+		[0, -pitchsin, pitchcos, 0],
+		[0,0,0,1]] )
+
+def np_rotate_y(m,a):
+	d = a*(3.14159265359/180.0)
+	yawsin = math.sin(d)
+	yawcos = math.cos(d)
+	return m * np.matrix( [
+		[yawcos, 0, -yawsin, 0], 
+		[0, 1, 0, 0], 
+		[yawsin, 0, yawcos, 0],
+		[0,0,0,1]]  )
+
+def np_rotate_z(m,a):
+	d = a*(3.14159265359/180.0)
+	rollsin = math.sin(d)
+	rollcos = math.cos(d)
+	return m * np.matrix([
+		[rollcos, rollsin,	0, 0], 
+		[-rollsin, rollcos,	0, 0],
+		[0,0,1,0],[0,0,0,1]])
+
+def np_translate(m,x,y,z):
+	return m * np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0],[x,y,z,1]])
