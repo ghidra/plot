@@ -111,7 +111,6 @@ class artist3(artist):
 		else:
 			configure_file = open(asset,'r')
 
-
 		configure_data = json.loads(configure_file.read())
 
 		new_asset = {}
@@ -205,6 +204,7 @@ class artist3(artist):
 			#transform each point
 			start = time.time()
 			#print("START OLD ----------")
+			#print('----------------------')
 			for p in asset["points"]:
 				point = vector4(p.x,p.y,p.z,1.0)
 				point = point.mult_matrix4( newttm );
@@ -215,6 +215,7 @@ class artist3(artist):
 				uz = point.z / point.w; #z is kind of useless in this case
 
 				points.append( vector3(ux,uy,0.0) )
+				#print(str(ux)+":"+str(uy))
 			end = time.time()
 			oldTotal+= end - start
 			#print("END OLD ----------" + str(end - start))
@@ -223,8 +224,13 @@ class artist3(artist):
 			#numpy style points
 			start = time.time()
 			#print("START NUMPY ----------")
-			npoints = asset["numpy_points"].dot(newttm_n)
-			#print(npoints)
+			#NUMPY STUFF
+			points_n = asset["numpy_points"].dot(newttm_n)
+			#print(points_n)
+			points_n = points_n[:,:2]/points_n[:,[3]]#if I want z, add a 3, ie [:,:3] to first delete
+			#print('--------')
+			#print(points_n)
+
 			end = time.time()
 			numpyTotal += end - start
 			#print("END NUMPY ----------" + str(end - start))

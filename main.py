@@ -156,7 +156,7 @@ def draw(  ):
 			artistSegmentBuffer.extend(seg)
 			for s in seg:
 				if s.draw:
-					canvas.create_line(s.p1.x,s.p1.y,s.p2.x,s.p2.y,fill=s.color, tags="artist")
+					canvas.create_line( [s.p1.x,s.p1.y,s.p2.x,s.p2.y],fill=s.color, tags="artist")
 					#canvas.itemconfig(item, tags=("artist"))
 
 	tk.after(afterSpeed,draw)
