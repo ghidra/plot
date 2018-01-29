@@ -129,6 +129,7 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
 _artist = artists.list[artists.getRandom()]( vector2(width,height), configure_data["plotter_skate_height"] )
+print(artists.loaded_artist)
 
 def load_artist(event):
 	artists.load(tk,load_callback)
@@ -139,7 +140,7 @@ def load_callback(artist_name):
 	_artist = artists.list[artist_name]( vector2(width,height), configure_data["plotter_skate_height"] )
 
 
-segmentsGenerated=0
+segmentsGenerated=0 #im not even sure I am using this anyway
 def draw(  ):
 	global _artist
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
@@ -152,13 +153,29 @@ def draw(  ):
 
 		seg = _artist.update()
 		segmentsGenerated=_artist.segment_count
+
 		if seg[0].valid:
 			artistSegmentBuffer.extend(seg)
-			for s in seg:
-				if s.draw:
-					canvas.create_line( [s.p1.x,s.p1.y,s.p2.x,s.p2.y],fill=s.color, tags="artist")
-					#canvas.itemconfig(item, tags=("artist"))
+			if(len(seg)>1):
 
+				segments_flat = []#lets test out flattening this thing to see if its any faster
+				line_done = False #a flag that wait for us to hit a skate point, sop we can draw the sline
+				for s in seg:
+					if s.draw:
+						line_done=False
+						segments_flat.extend([s.p1.x,s.p1.y,s.p2.x,s.p2.y])
+						segment_last_x = s.p2.x
+						segment_last_y = s.p2.y
+					else:
+						if(not line_done and len(segments_flat)>0):
+							canvas.create_line( segments_flat, fill=s.color, tags="artist")
+							segments_flat = [] #empty this out for the next go around
+						line_done=True
+			else:
+				#segments are coming in one at a time, just draw this guy
+				if seg[0].draw:
+					canvas.create_line( [seg[0].p1.x,seg[0].p1.y,seg[0].p2.x,seg[0].p2.y], fill=seg[0].color, tags="artist")
+			
 	tk.after(afterSpeed,draw)
 
 draw()

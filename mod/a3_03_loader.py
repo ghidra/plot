@@ -11,15 +11,16 @@ class a3_03_loader(artist3):
 	def __init__(self,dimensions,skateheight):
 		super().__init__(dimensions,skateheight)
 
-		self.directory = "mod/assets"
-		self.filename = "test_slice.json"
+		self.directory = "" #to make sure that we load this these are empty, and we senf them in setup
+		self.filename = ""
 
-		self.setup( {"path":self.directory,"file":self.filename} )	
+		self.setup( {"path":"mod/assets","file":"test_slice.json"} )	
 		self.render()
 		
 
 	def load_asset(self,asset,explicit=False):
 		del self.assets[:]
+		del self.segment[:] #this isnt actually doing anything
 		super().load_asset(asset,explicit)
 		
 	
@@ -27,14 +28,16 @@ class a3_03_loader(artist3):
 		super().setup(payload)
 
 		self.attributes["path"] = payload["path"] if "path" in payload else self.directory
-		self.directory = self.attributes["path"]
 		self.attributes["file"] = payload["file"] if "file" in payload else self.filename
-		self.filename = self.attributes["file"]
 		self.attributes["rx"] = payload["rx"] if "rx" in payload else 0.0
 		self.attributes["ry"] = payload["ry"] if "ry" in payload else 0.0
 		self.attributes["rz"] = payload["rz"] if "rz" in payload else 0.0
 
-		self.load_asset(payload["path"]+"/"+payload["file"],True)
+		#make sure we only load once
+		if(self.attributes["path"] != self.directory or self.attributes["file"] != self.filename):
+			self.directory = self.attributes["path"]
+			self.filename = self.attributes["file"]
+			self.load_asset(payload["path"]+"/"+payload["file"],True)
 
 		self.assets[0]["rnm"] = matrix4()
 		self.assets[0]["rnm"] = self.assets[0]["rnm"].rotate_x(self.attributes["rx"]).rotate_y(self.attributes["ry"]).rotate_z(self.attributes["rz"])#.rotate_y(i*2.0)

@@ -55,6 +55,8 @@ class artist3(artist):
 		self.assets = []
 
 		self.flashed = False #after sending this to plotter, stop sending it
+
+		#self.type="instant"
 	
 	def make_frustum(self):
 		rfov = self.fov*(3.14159265 / 180.0) #focal view in radians

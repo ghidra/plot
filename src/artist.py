@@ -28,6 +28,7 @@ class artist:
 		self.segment_count=0#for counting how many segments we have generated
 
 		self.attributes={}#this is for holding updatable attributes by name
+		#self.type="temporal"
 		
 	def update(self):
 		self.tick = (time.time()-self.last)

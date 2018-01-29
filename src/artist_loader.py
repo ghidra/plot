@@ -9,6 +9,7 @@ class artist_loader():
 		self.directory="mod"
 		self.list = {}
 		self.names = self.findArtist()
+		self.loaded_artist= "no one"
 
 		for a in self.names:
 			m = __import__(a, fromlist=[a])
@@ -23,7 +24,9 @@ class artist_loader():
 		return tmp
 
 	def getRandom(self):
-		return self.names[randint(0,len(self.names)-1)]
+		r = randint(0,len(self.names)-1)
+		self.loaded_artist = self.names[r]
+		return self.names[r]
 
 	#-------
 	#i need to call this from the main script
@@ -42,6 +45,7 @@ class artist_loader():
 		#self.callback(payload["path"]+"/"+payload["file"])
 		#self.load_asset(payload["path"]+"/"+payload["file"],True)
 		name = payload["file"].split(".")[0]
+		self.loaded_artist = name
 		self.callback(name)
 		
 
