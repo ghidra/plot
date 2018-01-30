@@ -272,7 +272,7 @@ class artist3(artist):
 		return self.dispatch()
 
 	#=====================
-	def configure(self,tk,canvas):
+	def configure(self,tk,canvas,segmentBuffer):
 		self.canvas=canvas
 		c = artist3_dialog(tk,self.attributes,self.configure_callback)
 

@@ -35,7 +35,7 @@ class a3_02_dodecahedron(artist3):
 			self.assets[i]["rnm"] = self.assets[i]["rnm"].scale_uniform( 1.0-(i/self.copies) ).rotate_x(float(i+1)*self.attributes["rx"]).rotate_y(float(i+1)*self.attributes["ry"]).rotate_z(float(i+1)*self.attributes["rz"])#.rotate_y(i*2.0)
 
 
-	def configure(self,tk,canvas):
+	def configure(self,tk,canvas,segmentBuffer):
 		self.canvas=canvas
 		c = configure_artist(tk,self.attributes,self.configure_callback)
 

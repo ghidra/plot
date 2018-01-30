@@ -96,5 +96,5 @@ class artist:
 
 	#default configure method
 	#event is because this call comes from tkinter callback
-	def configure(self,tk):
+	def configure(self,tk,canvas,segmentBuffer):
 		print("nothing to configure")

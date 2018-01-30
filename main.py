@@ -136,6 +136,7 @@ def load_artist(event):
 def load_callback(artist_name):
 	global _artist
 	canvas.delete("artist")
+	del artistSegmentBuffer[:]
 	print("width:"+str(width)+" height:"+str(height)+" skate:"+str(configure_data["plotter_skate_height"])+" artist:"+artist_name)
 	_artist = artists.list[artist_name]( vector2(width,height), configure_data["plotter_skate_height"] )
 
@@ -261,7 +262,7 @@ tk.protocol("WM_DELETE_WINDOW", close)
 canvas.bind_all( "<p>", call_preferences )
 canvas.bind_all( "<n>", call_nudge )
 canvas.bind_all( "<l>", load_artist )
-canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas) )
+canvas.bind_all( "<a>", lambda e:_artist.configure(tk,canvas,artistSegmentBuffer) )
 canvas.bind_all( "<space>", start_plotting )
 #canvas.bind_all( "<s>", lambda e:_artist.configure(tk) )
 #-------------------------------------------------------------

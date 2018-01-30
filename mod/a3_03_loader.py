@@ -13,6 +13,7 @@ class a3_03_loader(artist3):
 
 		self.directory = "" #to make sure that we load this these are empty, and we senf them in setup
 		self.filename = ""
+		self.segmentBuffer = None
 
 		self.setup( {"path":"mod/assets","file":"test_slice.json"} )	
 		self.render()
@@ -37,14 +38,19 @@ class a3_03_loader(artist3):
 		if(self.attributes["path"] != self.directory or self.attributes["file"] != self.filename):
 			self.directory = self.attributes["path"]
 			self.filename = self.attributes["file"]
+			#this allows us to erase the segments that have already been sent to main.
+			#but we dont have it if we start with this, so we have to wait till we have it
+			if(self.segmentBuffer!=None):
+				del self.segmentBuffer[:]
 			self.load_asset(payload["path"]+"/"+payload["file"],True)
 
 		self.assets[0]["rnm"] = matrix4()
 		self.assets[0]["rnm"] = self.assets[0]["rnm"].rotate_x(self.attributes["rx"]).rotate_y(self.attributes["ry"]).rotate_z(self.attributes["rz"])#.rotate_y(i*2.0)
 
 
-	def configure(self,tk,canvas):
+	def configure(self,tk,canvas,segmentBuffer):
 		self.canvas=canvas
+		self.segmentBuffer=segmentBuffer
 		c = configure_artist(tk,self.attributes,self.configure_callback)
 
 
