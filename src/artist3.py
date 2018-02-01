@@ -11,7 +11,7 @@ import numpy as np
 import time # measure if there is speed improvements
 
 class artist3(artist):
-	def __init__(self,dimensions,skateheight,fov=None,near=None,far=None):
+	def __init__(self,dimensions,skateheight,fov=None,near=None,far=None,useNumpy=False):
 		super().__init__(dimensions,skateheight)
 		self.turtle = self.dimensions*0.5
 
@@ -28,35 +28,28 @@ class artist3(artist):
 		self.near = near
 		self.far = far
 		self.ratio	= dimensions.x/dimensions.y
-		
-		self.ttm = matrix4()
-		# self.trm = matrix4()
-		self.rnm = matrix4()
-		
-		self.pm	= matrix4()#projection matrix
-		self.vm	= matrix4()#view matrix
-		self.rm	= matrix4()
 
-		#numpy matrices
-		#---------------------
-		self.ttm_n = np.identity(4)
-		self.rnm_n = np.identity(4)
-		self.pm_n = np.identity(4)
-		self.vm_n = np.identity(4)
-		self.rm_n = np.identity(4)
+		self.useNumpy = useNumpy
 
-		#default outward translation
-		#self.rnm = self.ttm.rotate_x(0.0).rotate_y(33.0).translate( vector3(0.0,0.0,-2.0) )
-		#self.rnm.transpose()
-		#self.frustum = self.make_frustum();
+		if not useNumpy:
+			#native matrices
+			self.ttm = matrix4()
+			self.rnm = matrix4()
+			self.pm	= matrix4()#projection matrix
+			self.vm	= matrix4()#view matrix
+			self.rm	= matrix4()
 
-		#self.setup()
+		else:
+			#numpy matrices
+			#---------------------
+			self.ttm_n = np.identity(4)
+			self.rnm_n = np.identity(4)
+			self.pm_n = np.identity(4)
+			self.vm_n = np.identity(4)
+			self.rm_n = np.identity(4)
 
 		self.assets = []
-
 		self.flashed = False #after sending this to plotter, stop sending it
-
-		#self.type="instant"
 	
 	def make_frustum(self):
 		rfov = self.fov*(3.14159265 / 180.0) #focal view in radians
@@ -72,30 +65,14 @@ class artist3(artist):
 		self.near = -self.near
 		self.far = -self.far
 		
-		self.pm = matrix4( vector4(cosf,0,0,0),vector4(0,-cosf,0,0),vector4(0,0,sinf/nf,-(math.sin(1)/nf)*self.near),vector4(0,0,sinf,0) )
-		self.vm = matrix4( vector4(self.dimensions.x,0,0,self.dimensions.x*0.5),vector4(0,self.dimensions.y,0,self.dimensions.y*0.5) ) # i dobnt know what the 99 is
-		
-		self.rm = self.pm.multiply(self.vm)
-
-		#print("-----makefrustum")
-		#print(self.rm.printable())
-
-		#numpy versions
-		#self.pm_n = np.matrix( [[cosf,0,0,0],[0,-cosf,0,0],[0,0,sinf/nf,-(math.sin(1)/nf)*self.near],[0,0,sinf,0]] )
-		#self.vm_n = np.matrix( [[self.dimensions.x,0,0,self.dimensions.x*0.5],[0,self.dimensions.y,0,self.dimensions.y*0.5],[0,0,1,0],[0,0,0,1]] ) # i dobnt know what the 99 is
-		self.pm_n = np.matrix( [
-			[cosf,0,0,0],
-			[0,-cosf,0,0],
-			[0,0,sinf/nf,sinf],
-			[0,0,-(math.sin(1)/nf)*self.near,0]] )
-		self.vm_n = np.matrix( [
-			[self.dimensions.x,0,0,0],
-			[0,self.dimensions.y,0,0],
-			[0,0,1,0],
-			[self.dimensions.x*0.5,self.dimensions.y*0.5,0,1]] ) # i dobnt know what the 99 is
-		#print(self.pm_n)
-		#print(self.vm_n)
-		self.rm_n = self.pm_n * self.vm_n
+		if not self.useNumpy:
+			self.pm = matrix4( vector4(cosf,0,0,0),vector4(0,-cosf,0,0),vector4(0,0,sinf/nf,-(math.sin(1)/nf)*self.near),vector4(0,0,sinf,0) )
+			self.vm = matrix4( vector4(self.dimensions.x,0,0,self.dimensions.x*0.5),vector4(0,self.dimensions.y,0,self.dimensions.y*0.5) ) # i dobnt know what the 99 is
+			self.rm = self.pm.multiply(self.vm)
+		else:
+			self.pm_n = np.matrix( [[cosf,0,0,0],[0,-cosf,0,0],[0,0,sinf/nf,sinf],[0,0,-(math.sin(1)/nf)*self.near,0]] )
+			self.vm_n = np.matrix( [[self.dimensions.x,0,0,0],[0,self.dimensions.y,0,0],[0,0,1,0],[self.dimensions.x*0.5,self.dimensions.y*0.5,0,1]] ) # i dobnt know what the 99 is
+			self.rm_n = self.pm_n * self.vm_n
 
 		#print("-----makefrustum numpy")
 		#print(self.rm_n.T)
@@ -126,21 +103,22 @@ class artist3(artist):
 				new_asset["points"] = []
 				new_asset["numpy_points"] = []
 				for i in range( len(configure_data[pref])//3 ):
-					new_asset["points"].append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
-					#numpy methods
-					if(i==0):
-						new_asset["numpy_points"] = np.array([[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]])
+					if not self.useNumpy:
+						new_asset["points"].append(vector3(configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2]))
 					else:
-						new_asset["numpy_points"] = np.append(new_asset["numpy_points"],[[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]],axis=0)
-					#--------------------
-				#new_asset["points"] = new_points
-				#print(new_asset["numpy_points"])
+						#numpy methods
+						if(i==0):
+							new_asset["numpy_points"] = np.array([[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]])
+						else:
+							new_asset["numpy_points"] = np.append(new_asset["numpy_points"],[[configure_data[pref][i*3],configure_data[pref][i*3+1],configure_data[pref][i*3+2],1]],axis=0)
 			#------------------------------------
 			if pref == "segments":
 				new_asset["segments"] = list(configure_data[pref])
 			#------------------------------------
-			new_asset["rnm"] = matrix4()
-			new_asset["rnm_n"] = np.identity(4)
+			if not self.useNumpy:
+				new_asset["rnm"] = matrix4()
+			else:
+				new_asset["rnm_n"] = np.identity(4)
 
 		self.assets.append(new_asset)
 
@@ -154,105 +132,68 @@ class artist3(artist):
 		self.attributes["cam_ty"] = payload["cam_ty"] if "cam_ty" in payload else 0.0
 		self.attributes["cam_tz"] = payload["cam_tz"] if "cam_tz" in payload else -2.0
 
-		self.rnm = matrix4()
-		self.ttm = matrix4()
-		self.rnm = self.ttm.rotate_x(self.attributes["cam_rx"]).rotate_y(self.attributes["cam_ry"]).rotate_z(self.attributes["cam_rz"]).translate( vector3(self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"]) )
-		self.rnm.transpose()
-
-		#print("-----setup")
-		#print(self.rnm.printable())
-
-		self.ttm_n = np.identity(4)
-		self.rnm_n = np.identity(4)
-		self.rnm_n = np_translate( np_rotate_z(  np_rotate_y(  np_rotate_x(self.ttm_n,self.attributes["cam_rx"])  ,self.attributes["cam_ry"])  ,self.attributes["cam_rz"]) , self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"] )
-		#self.rmm_n = 
-		#print("-----setup numpy")
-		#print(self.rnm_n)
-		#this i slooking right... except the right and bottom rows are different
+		if not self.useNumpy:
+			self.rnm = matrix4()
+			self.ttm = matrix4()
+			self.rnm = self.ttm.rotate_x(self.attributes["cam_rx"]).rotate_y(self.attributes["cam_ry"]).rotate_z(self.attributes["cam_rz"]).translate( vector3(self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"]) )
+			self.rnm.transpose()
+		else:
+			self.ttm_n = np.identity(4)
+			self.rnm_n = np.identity(4)
+			self.rnm_n = np_translate( np_rotate_z(  np_rotate_y(  np_rotate_x(self.ttm_n,self.attributes["cam_rx"])  ,self.attributes["cam_ry"])  ,self.attributes["cam_rz"]) , self.attributes["cam_tx"],self.attributes["cam_ty"],self.attributes["cam_tz"] )
 
 		self.make_frustum();
 
 
 	def render(self):
-		#we need to move the assets to render space
-
-		# render = []
 		self.segment = []
-		#counter=0
+
 		segment_insert_index=0 #if we have multiple assets, we need to insert skates at the right index
-		#for each asset, lets start transforming points
 		oldTotal=0
 		numpyTotal=0
 		segTotal=0
+
 		for asset in self.assets:
-			
-			newttm = matrix4()
-			newttm = newttm.multiply( asset["rnm"] ).multiply( self.rnm )
-			#newttm = newttm.multiply( self.rnm ).multiply( asset["rnm"] )
-			newttm = newttm.multiply( self.rm )
-			#print("-----render")
-			#print(newttm.printable())
 
-			#numpy version
-			newttm_n = np.identity(4)
-			newttm_n = newttm_n * asset["rnm_n"]
-			newttm_n = newttm_n * self.rnm_n
-			newttm_n = newttm_n * self.rm_n
-			#print("-----render numpy")
-			#print(newttm_n.T)
+			if not self.useNumpy:
+				newttm = matrix4()
+				newttm = newttm.multiply( asset["rnm"] ).multiply( self.rnm )
+				newttm = newttm.multiply( self.rm )
 
-			#store out newly transformed points
-			points = []
-			#transform each point
-			start = time.time()
-			#print("START OLD ----------")
-			#print('----------------------')
-			for p in asset["points"]:
-				point = vector4(p.x,p.y,p.z,1.0)
-				point = point.mult_matrix4( newttm );
-				#print( vector3(point.x,point.y,point.z).printable())#TEMP
-				
-				ux = point.x / point.w;
-				uy = point.y / point.w;
-				uz = point.z / point.w; #z is kind of useless in this case
-
-				points.append( vector3(ux,uy,0.0) )
-				#print(str(ux)+":"+str(uy))
-			end = time.time()
-			oldTotal+= end - start
-			#print("END OLD ----------" + str(end - start))
-
-				# print("x:"+str(ux)+", y:"+str(uy))
-			#numpy style points
-			start = time.time()
-			#print("START NUMPY ----------")
-			#NUMPY STUFF
-			points_n = asset["numpy_points"].dot(newttm_n)
-			#print(points_n)
-			points_n = points_n[:,:2]/points_n[:,[3]]#if I want z, add a 3, ie [:,:3] to first delete
-			#print('--------')
-			#print(points_n)
-
-			end = time.time()
-			numpyTotal += end - start
-			#print("END NUMPY ----------" + str(end - start))
-			start = time.time()
-			for seg in asset["segments"]:
-				for i in range( len(seg)-1 ):
-					self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )# print( points[seg[i]].printable() )
-					self.segment_count+=1
+				points = []
+				for p in asset["points"]:
+					point = vector4(p.x,p.y,p.z,1.0)
+					point = point.mult_matrix4( newttm );
 					
-				#now for each curve, do the lifting and skating and dropping
-				self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen from the last position of the last segment
-				self.skate_to(self.segment[segment_insert_index].p1,index=segment_insert_index)#insert the lifing skating and droping to the first position of the curve
-				#set data for next loop
-				self.turtle_last = vector2(self.segment[len(self.segment)-1].p2.x,self.segment[len(self.segment)-1].p2.y)
-				segment_insert_index = len(self.segment)
-			end = time.time()
-			segTotal += end - start
-		print("old ----------"+str(oldTotal))
-		print("numpy ----------"+str(numpyTotal))
-		print("segs ----------"+str(segTotal))
+					ux = point.x / point.w;
+					uy = point.y / point.w;
+					uz = point.z / point.w; #z is kind of useless in this case
+
+					points.append( vector3(ux,uy,0.0) )
+
+				#NOW PREPARE THE SEGMENTS
+				for seg in asset["segments"]:
+					for i in range( len(seg)-1 ):
+						self.segment.append( segment( points[seg[i]], points[seg[i+1]] ) )# print( points[seg[i]].printable() )
+						self.segment_count+=1
+						
+					#now for each curve, do the lifting and skating and dropping
+					self.segment.append( self.lift( self.segment[len(self.segment)-1].p2 ) ) #lift the pen from the last position of the last segment
+					self.skate_to(self.segment[segment_insert_index].p1,index=segment_insert_index)#insert the lifing skating and droping to the first position of the curve
+					#set data for next loop
+					self.turtle_last = vector2(self.segment[len(self.segment)-1].p2.x,self.segment[len(self.segment)-1].p2.y)
+					segment_insert_index = len(self.segment)
+
+			else:
+				#numpy version
+				newttm_n = np.identity(4)
+				newttm_n = newttm_n * asset["rnm_n"]
+				newttm_n = newttm_n * self.rnm_n
+				newttm_n = newttm_n * self.rm_n
+			
+				points_n = asset["numpy_points"].dot(newttm_n)
+				points_n = points_n[:,:2]/points_n[:,[3]]#if I want z, add a 3, ie [:,:3] to first delete
+
 
 	#override method
 	def dispatch(self):
@@ -275,7 +216,6 @@ class artist3(artist):
 	def configure(self,tk,canvas,segmentBuffer):
 		self.canvas=canvas
 		c = artist3_dialog(tk,self.attributes,self.configure_callback)
-
 
 	def configure_callback(self,payload):
 		self.canvas.delete("artist")
