@@ -187,7 +187,7 @@ draw()
 def start_plotting(event):
 	global artistConfigured, status_string
 	if not artistConfigured:
-		print("done configuring start plotting")
+		#print("done configuring start plotting")
 		artistConfigured = True
 		status_string.set('plot')
 #-------------------------------------------------------------

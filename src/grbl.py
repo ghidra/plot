@@ -71,7 +71,8 @@ class grbl:
 		else:
 			#this is absolute mode
 			#code = 'G0' if segment.rapid else 'G1' #rapid really isnt rapid
-			code = 'G1'
+			code = 'G0' if segment.rapid else 'G1'
+			#code = 'G1'
 			code += ' X'+str(segment.p2.x)+' Y'+str(segment.p2.y)
 			if type(segment.p2).__name__ is 'vector3':
 				code +=  ' Z'+str(segment.p2.z)
