@@ -6,12 +6,13 @@ from vector import *
 from segment import segment
 
 class artist:
-	def __init__(self,dimensions,skateheight):
+	def __init__(self,dimensions,skateheight,cutdepth=0):
 		self.last = time.time()
 		self.tick = 0.0
 		self.elapse = 0.0
 		self.dimensions = dimensions
 		self.skateheight = skateheight
+		self.cutdepth = cutdepth
 		self.center = dimensions*0.5
 		self.speed = 1.0
 		self.turtle = vector2()
