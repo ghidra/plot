@@ -98,3 +98,50 @@ class artist:
 	#event is because this call comes from tkinter callback
 	def configure(self,tk,canvas,segmentBuffer):
 		print("nothing to configure")
+
+##---------------------
+from tkinter import *
+from tkhelpers import dialog
+
+class artist_dialog(dialog):
+	def __init__(self,parent,attributes,callback):
+		self.attributes=attributes #incoming dictionary or attributes I want to reference
+		super().__init__(parent, "artist settings",buttonBoxType=1,applyCallback=callback)
+
+	def body(self, master):
+		self.mainframe = LabelFrame(master, padx=1, pady=1)
+		self.mainframe.grid()
+
+		group = LabelFrame(self.mainframe, text="Camera", padx=1, pady=1)
+		group.grid(row=0, padx=1, pady=1)
+
+		'''Label(group, text="fov:").grid(row=0)
+		self.v["cam_fov"] = DoubleVar()
+		self.v["cam_fov"].set( self.attributes["cam_fov"] if "cam_fov" in self.attributes else 90.0 )
+		self.e["cam_fov"] = Scale(group,variable = self.v["cam_fov"],orient=HORIZONTAL, from_=1, to=180,resolution=0.1)
+		self.e["cam_fov"].grid(row=0,column=1)
+
+		groupt = LabelFrame(group, text="Translate", padx=1, pady=1)
+		groupt.grid(row=1, columnspan=2,padx=1, pady=1)
+
+		groupr = LabelFrame(group, text="Rotate", padx=1, pady=1)
+		groupr.grid(row=2, columnspan=2,padx=1, pady=1)
+
+		Label(groupt, text="x:").grid(row=0)
+		self.v["cam_tx"] = DoubleVar()
+		self.v["cam_tx"].set( self.attributes["cam_tx"] if "cam_tx" in self.attributes else 0.0 )
+		self.e["cam_tx"] = Scale(groupt,variable = self.v["cam_tx"],orient=HORIZONTAL, from_=-2, to=2,resolution=0.01)
+		self.e["cam_tx"].grid(row=0,column=1)
+
+		Label(groupt, text="y:").grid(row=1)
+		self.v["cam_ty"] = DoubleVar()
+		self.v["cam_ty"].set( self.attributes["cam_ty"] if "cam_ty" in self.attributes else 0.0 )
+		self.e["cam_ty"] = Scale(groupt,variable = self.v["cam_ty"],orient=HORIZONTAL, from_=-2, to=2,resolution=0.01)
+		self.e["cam_ty"].grid(row=1,column=1)
+
+		Label(groupr, text="z:").grid(row=2)
+		self.v["cam_rz"] = DoubleVar()
+		self.v["cam_rz"].set( self.attributes["cam_rz"] if "cam_rz" in self.attributes else 0.0 )
+		self.e["cam_rz"] = Scale(groupr,variable = self.v["cam_rz"],orient=HORIZONTAL, from_=-180, to=180,resolution=1.0)
+		self.e["cam_rz"].grid(row=2,column=1)
+		'''

@@ -44,6 +44,7 @@ def call_preferences(event):
 
 plotter_aspect = configure_data["plotter_width"]/configure_data["plotter_height"]
 plotter_dimensions = vector3( float(configure_data["plotter_width"]),float(configure_data["plotter_height"]), 1.0 )
+gcode_ratio = vector3( float(configure_data["gcode_x_ratio"]),float(configure_data["gcode_y_ratio"]), float(configure_data["gcode_z_ratio"]) )
 canvas_max_pixels = configure_data["canvas_max_pixels"]
 width = canvas_max_pixels
 height = canvas_max_pixels*(1/plotter_aspect)
@@ -128,7 +129,9 @@ canvas.bind( "<ButtonRelease-1>", mouseRelease )
 
 # _drawThread = drawThread(width, height)
 # threads.append(_drawThread)
-_artist = artists.list[artists.getRandom()]( vector2(width,height), configure_data["plotter_skate_height"] )
+#_artist = artists.list[artists.getRandom()]( vector2(width,height), configure_data["plotter_skate_height"] )
+_artist = artists.list[artists.getRandom()]( vector2(plotter_dimensions.x,plotter_dimensions.y), configure_data["plotter_skate_height"] )
+
 print(artists.loaded_artist)
 
 def load_artist(event):
@@ -138,12 +141,13 @@ def load_callback(artist_name):
 	canvas.delete("artist")
 	del artistSegmentBuffer[:]
 	print("width:"+str(width)+" height:"+str(height)+" skate:"+str(configure_data["plotter_skate_height"])+" artist:"+artist_name)
-	_artist = artists.list[artist_name]( vector2(width,height), configure_data["plotter_skate_height"] )
+	#_artist = artists.list[artist_name]( vector2(width,height), configure_data["plotter_skate_height"] )
+	_artist = artists.list[artist_name]( vector2(plotter_dimensions.x,plotter_dimensions.y), configure_data["plotter_skate_height"] )
 
 
 segmentsGenerated=0 #im not even sure I am using this anyway
 def draw(  ):
-	global _artist
+	global _artist, width, height, plotter_dimensions
 	if len(artistSegmentBuffer)<maxArtistSegmentBufferSize:
 		
 		# 	print("clearing")
@@ -164,9 +168,17 @@ def draw(  ):
 				for s in seg:
 					if s.draw:
 						line_done=False
-						segments_flat.extend([s.p1.x,s.p1.y,s.p2.x,s.p2.y])
-						segment_last_x = s.p2.x
-						segment_last_y = s.p2.y
+
+						#assume all positions are mm 
+						#so we need to scale the to the width height of this canvas
+						w_mult = (width/plotter_dimensions.x)#*gcode_ratio.x
+						h_mult = (height/plotter_dimensions.y)#*gcode_ratio.y
+
+
+						#segments_flat.extend([s.p1.x,height-s.p1.y,s.p2.x,height-s.p2.y])
+						segments_flat.extend([s.p1.x*w_mult,height-(s.p1.y*h_mult),s.p2.x*w_mult,height-(s.p2.y*h_mult)])
+						segment_last_x = s.p2.x #x is correct #print(s.p2.y)
+						segment_last_y = height-s.p2.y #y needs to be inverted
 					else:
 						if(not line_done and len(segments_flat)>0):
 							canvas.create_line( segments_flat, fill=s.color, tags="artist")
@@ -208,6 +220,7 @@ class gcodeThread(threading.Thread):
 def gcode( g ):
 	global grblPlotting, width, height, configure_data, plotter_dimensions, artistConfigured, segmentsPlotted, segmentsGenerated #, status_string, _artist
 	# print("start streaming gcode in thread")
+
 	while grblPlotting:
 		if artistConfigured:
 			#status_string.set('plotting '+ str(segmentsGenerated) + ':' + str(segmentsPlotted) )
@@ -216,8 +229,11 @@ def gcode( g ):
 				seg = artistSegmentBuffer.pop(0)
 				#before we send this along, lets do some math on it, so that its the right length relative to the ploter
 				#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
-				np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
-				np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
+				#np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
+				#np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
+				np1 = vector3( seg.p1.x*gcode_ratio.x, seg.p1.y*gcode_ratio.y, seg.p1.z )
+				np2 = vector3( seg.p2.x*gcode_ratio.x, seg.p2.y*gcode_ratio.y, seg.p2.z )
+				
 				ns = segment(np1,np2,seg.rapid)
 
 				g.line(ns,configure_data['plotter_feedrate'])

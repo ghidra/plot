@@ -165,9 +165,9 @@ class artist3(artist):
 					point = vector4(p.x,p.y,p.z,1.0)
 					point = point.mult_matrix4( newttm );
 					
-					ux = point.x / point.w;
-					uy = point.y / point.w;
-					uz = point.z / point.w; #z is kind of useless in this case
+					ux = point.x / point.w
+					uy = point.y / point.w
+					uz = point.z / point.w #z is kind of useless in this case
 
 					points.append( vector3(ux,uy,0.0) )
 
