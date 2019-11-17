@@ -174,7 +174,7 @@ def draw(  ):
 						w_mult = (width/plotter_dimensions.x)#*gcode_ratio.x
 						h_mult = (height/plotter_dimensions.y)#*gcode_ratio.y
 
-
+						#print("------ x: "+str(s.p1.x)+", y: "+str(s.p1.y))
 						#segments_flat.extend([s.p1.x,height-s.p1.y,s.p2.x,height-s.p2.y])
 						segments_flat.extend([s.p1.x*w_mult,height-(s.p1.y*h_mult),s.p2.x*w_mult,height-(s.p2.y*h_mult)])
 						segment_last_x = s.p2.x #x is correct #print(s.p2.y)
@@ -231,9 +231,10 @@ def gcode( g ):
 				#y in the cavas goes DOWN from the top... so I want to invert it so that it goes up from bottom. Bottom left corner is 0,0
 				#np1 = vector3( seg.p1.x/float(width), 1.0-(seg.p1.y/float(height)), seg.p1.z ) * plotter_dimensions
 				#np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
-				np1 = vector3( seg.p1.x*gcode_ratio.x, seg.p1.y*gcode_ratio.y, seg.p1.z )
-				np2 = vector3( seg.p2.x*gcode_ratio.x, seg.p2.y*gcode_ratio.y, seg.p2.z )
-				
+				#np1 = vector3( seg.p1.x*gcode_ratio.x, seg.p1.y*gcode_ratio.y, seg.p1.z )
+				#np2 = vector3( seg.p2.x*gcode_ratio.x, seg.p2.y*gcode_ratio.y, seg.p2.z )
+				np1 = vector3( seg.p1.x, seg.p1.y, seg.p1.z )
+				np2 = vector3( seg.p2.x, seg.p2.y, seg.p2.z )
 				ns = segment(np1,np2,seg.rapid)
 
 				g.line(ns,configure_data['plotter_feedrate'])
