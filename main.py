@@ -51,6 +51,7 @@ height = canvas_max_pixels*(1/plotter_aspect)
 afterSpeed = int(configure_data["artist_delay"] * 1000) #convert to milliseconds ,how often a new line is made in automatic draw
 serial_address = configure_data["plotter_serial"] #plotter connection
 maxArtistSegmentBufferSize = configure_data["artist_max_buffer_size"]#this will stop automatic drawing at a certain point if need be
+percentEveryNthLine = 10 #every 10 lines in verbose mode, tell me the eprcentage complete
 
 #---------------------------------------------
 threads = []
@@ -220,7 +221,7 @@ class gcodeThread(threading.Thread):
 def gcode( g ):
 	global grblPlotting, width, height, configure_data, plotter_dimensions, artistConfigured, segmentsPlotted, segmentsGenerated #, status_string, _artist
 	# print("start streaming gcode in thread")
-
+	numSegments = len(artistSegmentBuffer)
 	while grblPlotting:
 		if artistConfigured:
 			#status_string.set('plotting '+ str(segmentsGenerated) + ':' + str(segmentsPlotted) )
@@ -233,9 +234,9 @@ def gcode( g ):
 				#np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
 				#np1 = vector3( seg.p1.x*gcode_ratio.x, seg.p1.y*gcode_ratio.y, seg.p1.z )
 				#np2 = vector3( seg.p2.x*gcode_ratio.x, seg.p2.y*gcode_ratio.y, seg.p2.z )
-				x_safe = true
-				y_safe = true
-				z_safe = true
+				x_safe = True
+				y_safe = True
+				z_safe = True
 				p1x = seg.p1.x
 				p2x = seg.p2.x
 				p1y = seg.p1.y
@@ -273,6 +274,13 @@ def gcode( g ):
 
 				g.line(ns,configure_data['plotter_feedrate'])
 				segmentsPlotted+=1
+
+				if(args.verbose):
+					if(segmentsPlotted%10==0):
+						print("-------- "+str( (segmentsPlotted/numSegments)*100 )+"% Sent")
+					if(segmentsPlotted/numSegments>=1):
+						print("-------- 100% Sent")
+
 
 _gcodeThread = gcodeThread(serial_address,args.connect,args.verbose)
 threads.append(_gcodeThread)
