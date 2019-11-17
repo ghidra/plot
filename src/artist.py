@@ -67,7 +67,8 @@ class artist:
 		self.segment.insert(index, self.skate(from_position, position) ) #skate to position
 
 	def origin(self):
-		return vector2(0.0,self.dimensions.y)
+		return vector2(0.0,0.0)
+		#return vector2(0.0,self.dimensions.y)
 
 	#this method basically, makes sure that you send the command to pick the pen up from origin
 	#as well it takes into account the waiting
