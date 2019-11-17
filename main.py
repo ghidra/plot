@@ -233,8 +233,42 @@ def gcode( g ):
 				#np2 = vector3( seg.p2.x/float(width), 1.0-(seg.p2.y/float(height)), seg.p2.z ) * plotter_dimensions
 				#np1 = vector3( seg.p1.x*gcode_ratio.x, seg.p1.y*gcode_ratio.y, seg.p1.z )
 				#np2 = vector3( seg.p2.x*gcode_ratio.x, seg.p2.y*gcode_ratio.y, seg.p2.z )
-				np1 = vector3( seg.p1.x, seg.p1.y, seg.p1.z )
-				np2 = vector3( seg.p2.x, seg.p2.y, seg.p2.z )
+				x_safe = true
+				y_safe = true
+				z_safe = true
+				p1x = seg.p1.x
+				p2x = seg.p2.x
+				p1y = seg.p1.y
+				p2y = seg.p2.y
+				p1z = seg.p1.z
+				p2z = seg.p2.z
+				if( p1x > plotter_dimensions.x ):
+					p1x = plotter_dimensions.x
+					x_safe = False;
+				if( p1x < 0 ):
+					p1x = 0
+					x_safe = False
+				if( p2x > plotter_dimensions.x ):
+					p2x = plotter_dimensions.x
+					x_safe = False;
+				if( p2x < 0 ):
+					p2x = 0
+					x_safe = False
+				if( p1y > plotter_dimensions.y ):
+					p1y = plotter_dimensions.y
+					y_safe = False;
+				if( p1y < 0 ):
+					p1y = 0
+					y_safe = False
+				if( p2y > plotter_dimensions.y ):
+					p2y = plotter_dimensions.y
+					y_safe = False;
+				if( p2y < 0 ):
+					p2y = 0
+					y_safe = False
+
+				np1 = vector3( p1x*gcode_ratio.x, p1y*gcode_ratio.y, seg.p1.z )
+				np2 = vector3( p2x*gcode_ratio.x, p2y*gcode_ratio.y, seg.p2.z )
 				ns = segment(np1,np2,seg.rapid)
 
 				g.line(ns,configure_data['plotter_feedrate'])
